@@ -1,25 +1,47 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Flame, Plus, Minus, AlertTriangle, Thermometer } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { cabinApi } from "@/lib/api";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-export function HeaterCard() {
-  const [status, setStatus] = useState<"off" | "heating" | "starting" | "blew">("heating");
-  const [power, setPower] = useState(4);
-  const [hasError, setHasError] = useState(false);
+interface HeaterCardProps {
+  data?: any;
+}
 
-  const increasePower = () => setPower(Math.min(10, power + 1));
-  const decreasePower = () => setPower(Math.max(1, power - 1));
+export function HeaterCard({ data }: HeaterCardProps) {
+  const queryClient = useQueryClient();
+  const [localPower, setLocalPower] = useState(data?.power_level ?? 4);
 
-  const getStatusColor = (s: typeof status) => {
-    switch(s) {
-      case "heating": return "text-orange-500";
-      case "starting": return "text-amber-500";
-      case "blew": return "text-blue-400";
-      default: return "text-muted-foreground";
+  useEffect(() => {
+    if (data?.power_level !== undefined) {
+      setLocalPower(data.power_level);
     }
+  }, [data?.power_level]);
+
+  const toggleMutation = useMutation({
+    mutationFn: cabinApi.toggleHeater,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["/heater/status"] }),
+  });
+
+  const powerMutation = useMutation({
+    mutationFn: cabinApi.adjustHeaterPower,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["/heater/status"] }),
+  });
+
+  const status = data?.power?.toLowerCase() || "off"; // OFF | ON | COOLING
+  const state = data?.state || "Shutdown";
+  const shellTemp = data?.shell_temp ?? 16;
+  const hasError = state.toLowerCase().includes("error") || state === "N/A";
+
+  const getStatusColor = (s: string) => {
+    const lowS = s.toLowerCase();
+    if (lowS === "on" || lowS === "heating") return "text-orange-500";
+    if (lowS === "starting" || lowS === "ignition") return "text-amber-500";
+    if (lowS === "cooling" || lowS === "blew") return "text-blue-400";
+    return "text-muted-foreground";
   };
 
   return (
@@ -39,14 +61,18 @@ export function HeaterCard() {
           <div className="flex items-center gap-3">
             {hasError ? (
               <span className="text-xs font-medium text-destructive flex items-center gap-1">
-                <AlertTriangle className="w-3 h-3" /> Error
+                <AlertTriangle className="w-3 h-3" /> {state}
               </span>
             ) : (
-              <span className={cn("text-xs font-medium uppercase tracking-wider", getStatusColor(status))}>
-                {status}
+              <span className={cn("text-xs font-medium uppercase tracking-wider", getStatusColor(state))}>
+                {state}
               </span>
             )}
-            <Switch checked={status !== "off"} onCheckedChange={(checked) => setStatus(checked ? "starting" : "off")} />
+            <Switch 
+              checked={status === "on" || status === "cooling"} 
+              onCheckedChange={() => toggleMutation.mutate()} 
+              disabled={toggleMutation.isPending}
+            />
           </div>
         </div>
       </CardHeader>
@@ -56,21 +82,21 @@ export function HeaterCard() {
           <div className="p-4 rounded-xl bg-destructive/10 border border-destructive/20 flex flex-col items-center justify-center text-center gap-2 h-full">
             <AlertTriangle className="w-8 h-8 text-destructive" />
             <div>
-              <p className="font-medium text-destructive text-sm">Fuel Pump Failure</p>
-              <p className="text-xs text-destructive/80 mt-1">Please check the fuel line and try again.</p>
+              <p className="font-medium text-destructive text-sm">System Error</p>
+              <p className="text-xs text-destructive/80 mt-1">{state}</p>
             </div>
-            <Button variant="outline" size="sm" className="mt-2" onClick={() => setHasError(false)}>
-              Dismiss Error
+            <Button variant="outline" size="sm" className="mt-2" onClick={() => toggleMutation.mutate()}>
+              Reset
             </Button>
           </div>
         ) : (
           <div className="space-y-6 flex flex-col h-[calc(100%-1rem)]">
             <div className="flex items-center justify-between">
               <div className="flex flex-col">
-                <span className="text-sm text-muted-foreground">Core Temp</span>
+                <span className="text-sm text-muted-foreground">Shell Temp</span>
                 <div className="flex items-center gap-1">
                   <Thermometer className="w-4 h-4 text-orange-500/70" />
-                  <span className="text-3xl font-light tabular-nums tracking-tight">185<span className="text-lg text-muted-foreground ml-1">°C</span></span>
+                  <span className="text-3xl font-light tabular-nums tracking-tight">{shellTemp}<span className="text-lg text-muted-foreground ml-1">°C</span></span>
                 </div>
               </div>
               
@@ -82,7 +108,7 @@ export function HeaterCard() {
                       key={i} 
                       className={cn(
                         "w-2 h-6 rounded-full transition-colors",
-                        i < power 
+                        i < localPower 
                           ? (status !== "off" ? "bg-orange-500" : "bg-muted-foreground/30") 
                           : "bg-muted"
                       )} 
@@ -99,18 +125,18 @@ export function HeaterCard() {
                   variant="ghost" 
                   size="icon" 
                   className="h-8 w-8 rounded-full hover:bg-background" 
-                  onClick={decreasePower} 
-                  disabled={status === "off" || power <= 1}
+                  onClick={() => powerMutation.mutate("down")} 
+                  disabled={status === "off" || localPower <= 1 || powerMutation.isPending}
                 >
                   <Minus className="w-4 h-4" />
                 </Button>
-                <div className="w-8 text-center font-medium tabular-nums text-sm">{power}</div>
+                <div className="w-8 text-center font-medium tabular-nums text-sm">{localPower}</div>
                 <Button 
                   variant="ghost" 
                   size="icon" 
                   className="h-8 w-8 rounded-full hover:bg-background" 
-                  onClick={increasePower} 
-                  disabled={status === "off" || power >= 10}
+                  onClick={() => powerMutation.mutate("up")} 
+                  disabled={status === "off" || localPower >= 10 || powerMutation.isPending}
                 >
                   <Plus className="w-4 h-4" />
                 </Button>

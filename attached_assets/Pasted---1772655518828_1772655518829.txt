@@ -1,0 +1,171 @@
+⏺ ---                                                                                                                                                                                                                                                         
+  cabinAPI — Full Structure                                                                               
+                                                                                                                                                                                                                                                              
+  Authentication                                                                                                                                                                                                                                              
+                                                                                                                                                                                                                                                              
+  ---                                                                                                                                                                                                                                                         
+  POST /token                                                                                             
+
+  No auth required.
+
+  Request — application/x-www-form-urlencoded
+  username: string   (email)
+  password: string
+  Response 200
+  {
+    "access_token": "string (32-char hex)",
+    "token_type":   "bearer"
+  }
+  Response 401 — wrong credentials
+
+  ---
+  POST /logout
+
+  Requires Bearer token.
+
+  Request — header only: Authorization: Bearer <token>
+
+  Response 200
+  { "status": "logged out" }
+
+  ---
+  Battery — JK-BMS (BLE)
+
+  ---
+  GET /battery/status
+
+  Response 200
+  {
+    "soc":     100,          // int  — State of Charge (%)
+    "health":  100,          // int  — State of Health (%)
+    "power":   5.211,        // float — Watts
+    "voltage": 27.723,       // float — Volts
+    "current": -0.188,       // float — Amps (negative = discharging)
+    "temperatures": {
+      "sensor_1": 8.2,       // float — °C
+      "sensor_2": 8.2        // float — °C
+    }
+  }
+
+  ---
+  Heater — Vevor Diesel (BLE)
+
+  ---
+  GET /heater/status
+
+  Response 200 — MANUAL mode
+  {
+    "power":       "OFF",       // "OFF" | "ON" | "COOLING"
+    "mode":        "MANUAL",    // "MANUAL" | "AUTO"
+    "state":       "Shutdown",  // "Shutdown"|"Blew"|"Test"|"Ignition start/stop"|"N/A"|"Heating"|"Ignition success"
+    "shell_temp":  16,          // int — °C
+    "voltage":     27,          // int — Volts
+    "power_level": 0            // int — 1–10 (MANUAL mode only)
+  }
+  Response 200 — AUTO mode (same but power_level replaced by)
+    "target_temp": 22           // int — °C (AUTO mode only)
+
+  ---
+  POST /heater/toggle
+
+  Toggle ON/OFF.
+
+  Response 200
+  { "status": "success", "command": "Toggle ON/OFF" }
+
+  ---
+  POST /heater/mode
+
+  Switch MANUAL ↔ AUTO.
+
+  Response 200
+  { "status": "success", "command": "Switch mode (Manual/Auto)" }
+
+  ---
+  POST /heater/temperature?action=up|down
+
+  Adjust target temperature (AUTO mode). Query param required.
+
+  ┌────────┬────────┬───────────────┐
+  │ Param  │  Type  │    Values     │
+  ├────────┼────────┼───────────────┤
+  │ action │ string │ "up" | "down" │
+  └────────┴────────┴───────────────┘
+
+  Response 200
+  { "status": "success", "command": "Increase temperature" }
+  Response 400 — { "detail": "Action must be 'up' or 'down'" }
+
+  ---
+  POST /heater/power-level?action=up|down
+
+  Adjust power level (MANUAL mode). Query param required.
+
+  ┌────────┬────────┬───────────────┐
+  │ Param  │  Type  │    Values     │
+  ├────────┼────────┼───────────────┤
+  │ action │ string │ "up" | "down" │
+  └────────┴────────┴───────────────┘
+
+  Response 200
+  { "status": "success", "command": "Increase power level" }
+
+  ---
+  POST /heater/fan-mode
+
+  Toggle fan mode.
+
+  Response 200
+  { "status": "success", "command": "Toggle fan mode" }
+
+  ---
+  POST /heater/altitude
+
+  Toggle altitude mode.
+
+  Response 200
+  { "status": "success", "command": "Toggle altitude mode" }
+
+  ---
+  MPPT — Victron SmartSolar (BLE passive scan)
+
+  ---
+  GET /mppt/status
+
+  Response 200
+  {
+    "battery_voltage":   27.71,   // float — Volts
+    "charging_current":  0.0,     // float — Amps
+    "solar_power":       1,       // int   — Watts
+    "yield_today_wh":    830,     // int   — Wh harvested today
+    "charge_state":      "FLOAT", // "BULK"|"ABSORPTION"|"FLOAT"|"OFF"|"EQUALISATION"
+    "charger_error":     "NO_ERROR"
+  }
+
+  ---
+  Temperature Sensor — Tuya Cloud
+
+  ---
+  GET /temperature/status
+
+  Response 200
+  {
+    "va_temperature":    20.5,      // float — °C
+    "va_humidity":       48,        // int   — % RH
+    "battery_percentage":45,        // int   — %
+    "temp_unit_convert": "c",       // "c" | "f"
+    "maxtemp_set":       39.0,      // float — °C alarm upper bound
+    "minitemp_set":      0.0,       // float — °C alarm lower bound
+    "maxhum_set":        60,        // int   — % RH alarm upper bound
+    "minihum_set":       20,        // int   — % RH alarm lower bound
+    "temp_alarm":        "cancel",  // "cancel" | "alarm"
+    "hum_alarm":         "cancel",  // "cancel" | "alarm"
+    "temp_sensitivity":  1.0,       // float — °C trigger delta
+    "hum_sensitivity":   10         // int   — % RH trigger delta
+  }
+
+  ---
+  Error response (all endpoints)
+
+  { "error": "string" }   // BLE device not found, timeout, etc.
+  { "detail": "string" }  // FastAPI 401 / 400 errors

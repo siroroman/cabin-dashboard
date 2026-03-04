@@ -4,8 +4,46 @@ import { HeaterCard } from "@/components/dashboard/HeaterCard";
 import { BatteryCard } from "@/components/dashboard/BatteryCard";
 import { SolarCard } from "@/components/dashboard/SolarCard";
 import { motion } from "framer-motion";
+import { useQuery } from "@tanstack/react-query";
+import { cabinApi } from "@/lib/api";
+import { useEffect } from "react";
+import { useLocation } from "wouter";
 
 export default function Dashboard() {
+  const [, setLocation] = useLocation();
+
+  useEffect(() => {
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+      setLocation("/login");
+    }
+  }, [setLocation]);
+
+  // Global polling for all dashboard data
+  const { data: tempData } = useQuery({
+    queryKey: ["/temperature/status"],
+    queryFn: cabinApi.getTemperatureStatus,
+    refetchInterval: 5000,
+  });
+
+  const { data: heaterData } = useQuery({
+    queryKey: ["/heater/status"],
+    queryFn: cabinApi.getHeaterStatus,
+    refetchInterval: 5000,
+  });
+
+  const { data: batteryData } = useQuery({
+    queryKey: ["/battery/status"],
+    queryFn: cabinApi.getBatteryStatus,
+    refetchInterval: 5000,
+  });
+
+  const { data: mpptData } = useQuery({
+    queryKey: ["/mppt/status"],
+    queryFn: cabinApi.getMpptStatus,
+    refetchInterval: 5000,
+  });
+
   return (
     <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
       <Header />
@@ -18,16 +56,16 @@ export default function Dashboard() {
           transition={{ duration: 0.5, staggerChildren: 0.1 }}
         >
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="h-full">
-            <TemperatureCard />
+            <TemperatureCard data={tempData} />
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="h-full">
-            <HeaterCard />
+            <HeaterCard data={heaterData} />
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="h-full">
-            <BatteryCard />
+            <BatteryCard data={batteryData} />
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="h-full">
-            <SolarCard />
+            <SolarCard data={mpptData} />
           </motion.div>
         </motion.div>
       </main>

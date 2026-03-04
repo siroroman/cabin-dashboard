@@ -6,19 +6,31 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Home, Lock } from "lucide-react";
 import { motion } from "framer-motion";
+import { cabinApi } from "@/lib/api";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Login() {
   const [, setLocation] = useLocation();
   const [loading, setLoading] = useState(false);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // Mock login delay
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      await cabinApi.login(username, password);
       setLocation("/");
-    }, 800);
+    } catch (error: any) {
+      toast({
+        title: "Login failed",
+        description: error.response?.data?.detail || "Invalid credentials",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -43,6 +55,8 @@ export default function Login() {
                 <Input 
                   id="username" 
                   placeholder="admin" 
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   required 
                   className="rounded-xl bg-background/50 border-border/50 focus:ring-primary/20"
                 />
@@ -53,6 +67,8 @@ export default function Login() {
                   <Input 
                     id="password" 
                     type="password" 
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     required 
                     className="rounded-xl bg-background/50 border-border/50 focus:ring-primary/20 pl-10"
                   />

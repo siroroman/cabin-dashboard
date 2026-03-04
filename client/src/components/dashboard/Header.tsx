@@ -12,9 +12,23 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useTheme } from "@/components/ThemeProvider";
+import { cabinApi } from "@/lib/api";
+import { useLocation } from "wouter";
 
 export function Header() {
   const { theme, setTheme } = useTheme();
+  const [, setLocation] = useLocation();
+
+  const handleLogout = async () => {
+    try {
+      await cabinApi.logout();
+      setLocation("/login");
+    } catch (error) {
+      // Even if API fails, clear local and redirect
+      localStorage.removeItem("access_token");
+      setLocation("/login");
+    }
+  };
 
   return (
     <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-xl border-b border-border/50 px-4 md:px-6 h-16 flex items-center justify-between">
@@ -40,7 +54,6 @@ export function Header() {
             <Button 
               variant="ghost" 
               className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full sm:rounded-md px-2 sm:px-4 transition-colors"
-              onClick={() => window.location.href = "/login"}
             >
               <LogOut className="w-5 h-5 sm:mr-2" />
               <span className="hidden sm:inline-block">Logout</span>
@@ -55,7 +68,12 @@ export function Header() {
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel className="rounded-xl">Cancel</AlertDialogCancel>
-              <AlertDialogAction className="rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90">Logout</AlertDialogAction>
+              <AlertDialogAction 
+                className="rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                onClick={handleLogout}
+              >
+                Logout
+              </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
