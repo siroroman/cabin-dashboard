@@ -12,8 +12,8 @@ import { useToast } from "@/hooks/use-toast";
 export default function Login() {
   const [, setLocation] = useLocation();
   const [loading, setLoading] = useState(false);
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("siroroman@gmail.com");
+  const [password, setPassword] = useState("xe_J1zJraT9jHUqAI0o28w");
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
