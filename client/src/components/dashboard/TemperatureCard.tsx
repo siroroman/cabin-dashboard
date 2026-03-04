@@ -18,9 +18,9 @@ export function TemperatureCard({ data }: TemperatureCardProps) {
     return "text-foreground";
   };
 
-  const indoorTemp = data?.va_temperature ?? 22.4;
-  const indoorHum = data?.va_humidity ?? 45;
-  const indoorBattery = data?.battery_percentage ?? 87;
+  const indoorTemp = data?.va_temperature;
+  const indoorHum = data?.va_humidity;
+  const indoorBattery = data?.battery_percentage;
 
   return (
     <Card className="h-full border-border/50 shadow-sm hover:shadow-md transition-shadow overflow-hidden rounded-2xl bg-card/50 backdrop-blur-sm">
@@ -39,7 +39,9 @@ export function TemperatureCard({ data }: TemperatureCardProps) {
           
           <div className="space-y-3 flex-1 flex flex-col">
             <div className="flex items-end gap-2">
-              <span className={`text-4xl font-light tabular-nums tracking-tight ${getTempColor(indoorTemp)}`}>{indoorTemp}</span>
+              <span className={`text-4xl font-light tabular-nums tracking-tight ${indoorTemp != null ? getTempColor(indoorTemp) : ""}`}>
+                {indoorTemp != null ? indoorTemp.toFixed(1) : "--"}
+              </span>
               <span className="text-lg text-muted-foreground mb-1">°C</span>
             </div>
             
@@ -49,15 +51,17 @@ export function TemperatureCard({ data }: TemperatureCardProps) {
                   <Droplets className="w-4 h-4 text-cyan-500" />
                   <span>Humidity</span>
                 </div>
-                <span className="font-medium">{indoorHum}%</span>
+                <span className="font-medium">{indoorHum != null ? `${indoorHum}%` : "--"}</span>
               </div>
               
               <div className="flex items-center justify-between text-sm">
                 <div className="flex items-center gap-1.5 text-muted-foreground">
-                  {getBatteryIcon(indoorBattery)}
+                  {indoorBattery != null ? getBatteryIcon(indoorBattery) : <BatteryFull className="w-4 h-4 text-muted-foreground" />}
                   <span>Battery</span>
                 </div>
-                <span className="font-medium text-emerald-500">{indoorBattery}%</span>
+                <span className={`font-medium ${indoorBattery != null ? "text-emerald-500" : ""}`}>
+                  {indoorBattery != null ? `${indoorBattery}%` : "--"}
+                </span>
               </div>
             </div>
           </div>

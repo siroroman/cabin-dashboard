@@ -6,9 +6,9 @@ interface SolarCardProps {
 }
 
 export function SolarCard({ data }: SolarCardProps) {
-  const chargingMode = data?.charge_state ?? "OFF"; 
-  const solarPower = data?.solar_power ?? 0;
-  const yieldToday = (data?.yield_today_wh ?? 0) / 1000;
+  const chargingMode = data?.charge_state;
+  const solarPower = data?.solar_power;
+  const yieldToday = data?.yield_today_wh != null ? data.yield_today_wh / 1000 : undefined;
 
   const getModeColor = (mode: string) => {
     switch (mode) {
@@ -30,8 +30,8 @@ export function SolarCard({ data }: SolarCardProps) {
             </div>
             Solar MPPT
           </CardTitle>
-          <div className={`px-2.5 py-1 rounded-full border text-[10px] font-bold uppercase tracking-wider ${getModeColor(chargingMode)}`}>
-            {chargingMode}
+          <div className={`px-2.5 py-1 rounded-full border text-[10px] font-bold uppercase tracking-wider ${getModeColor(chargingMode ?? "")}`}>
+            {chargingMode ?? "--"}
           </div>
         </div>
       </CardHeader>
@@ -40,14 +40,14 @@ export function SolarCard({ data }: SolarCardProps) {
           <div className="space-y-1">
             <span className="text-sm text-muted-foreground">Current Output</span>
             <div className="text-4xl font-light tabular-nums tracking-tight text-amber-500">
-              {solarPower} <span className="text-xl text-amber-500/70 font-normal ml-1">W</span>
+              {solarPower != null ? solarPower : "--"} <span className="text-xl text-amber-500/70 font-normal ml-1">W</span>
             </div>
           </div>
           
           <div className="space-y-1 text-right">
             <span className="text-sm text-muted-foreground">Total Today</span>
             <div className="text-2xl font-medium tabular-nums tracking-tight">
-              {yieldToday.toFixed(1)} <span className="text-base text-muted-foreground font-normal ml-1">kWh</span>
+              {yieldToday != null ? yieldToday.toFixed(1) : "--"} <span className="text-base text-muted-foreground font-normal ml-1">kWh</span>
             </div>
           </div>
         </div>
@@ -60,7 +60,7 @@ export function SolarCard({ data }: SolarCardProps) {
               </div>
               <div className="flex flex-col">
                 <span className="text-xs text-muted-foreground uppercase tracking-tight font-semibold">Charging Status</span>
-                <span className="text-sm font-medium">{chargingMode !== "OFF" ? "System Active" : "Idle"}</span>
+                <span className="text-sm font-medium">{chargingMode && chargingMode !== "OFF" ? "System Active" : "Idle"}</span>
               </div>
             </div>
             <div className="text-right">

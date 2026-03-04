@@ -8,14 +8,16 @@ interface BatteryCardProps {
 }
 
 export function BatteryCard({ data }: BatteryCardProps) {
-  const soc = data?.soc ?? 100;
-  const isCharging = (data?.current ?? 0) > 0;
-  const voltage = data?.voltage ?? 27.7;
-  const current = data?.current ?? 0;
-  const rawPower = Math.abs(data?.power ?? 0);
-  const power = current < 0 ? -rawPower : rawPower;
-  const temp1 = data?.temperatures?.sensor_1 ?? 8.2;
-  const temp2 = data?.temperatures?.sensor_2 ?? 8.2;
+  const soc = data?.soc;
+  const voltage = data?.voltage;
+  const current = data?.current;
+  const rawPower = data?.power != null ? Math.abs(data.power) : undefined;
+  const power = rawPower != null && current != null ? (current < 0 ? -rawPower : rawPower) : undefined;
+  const temp1 = data?.temperatures?.sensor_1;
+  const temp2 = data?.temperatures?.sensor_2;
+  const isCharging = current != null && current > 0;
+
+  const fmt = (v: number | undefined, decimals: number) => v != null ? v.toFixed(decimals) : "--";
 
   return (
     <Card className="h-full border-border/50 shadow-sm hover:shadow-md transition-shadow overflow-hidden rounded-2xl bg-card/50 backdrop-blur-sm flex flex-col relative">
@@ -42,14 +44,16 @@ export function BatteryCard({ data }: BatteryCardProps) {
         <div className="space-y-2">
           <div className="flex items-end justify-between mb-1">
             <span className="text-sm text-muted-foreground">State of Charge</span>
-            <span className="text-4xl font-light tabular-nums tracking-tight">{soc}<span className="text-xl text-muted-foreground ml-1">%</span></span>
+            <span className="text-4xl font-light tabular-nums tracking-tight">{soc != null ? soc : "--"}<span className="text-xl text-muted-foreground ml-1">%</span></span>
           </div>
           <div className="relative pt-2">
-            <Progress value={soc} className="h-3 bg-muted" />
-            <div 
-              className={cn("absolute inset-0 bg-emerald-500/20 rounded-full", isCharging && "animate-pulse")} 
-              style={{ width: `${soc}%` }}
-            />
+            <Progress value={soc ?? 0} className="h-3 bg-muted" />
+            {isCharging && (
+              <div 
+                className="absolute inset-0 bg-emerald-500/20 rounded-full animate-pulse" 
+                style={{ width: `${soc ?? 0}%` }}
+              />
+            )}
           </div>
         </div>
 
@@ -58,22 +62,22 @@ export function BatteryCard({ data }: BatteryCardProps) {
             <span className="text-xs text-muted-foreground flex items-center gap-1">
               Voltage
             </span>
-            <div className="text-xl font-medium tabular-nums tracking-tight">{voltage.toFixed(1)} <span className="text-sm text-muted-foreground font-normal">V</span></div>
+            <div className="text-xl font-medium tabular-nums tracking-tight">{fmt(voltage, 1)} <span className="text-sm text-muted-foreground font-normal">V</span></div>
           </div>
           <div className="space-y-1">
             <span className="text-xs text-muted-foreground flex items-center gap-1">
               Current
             </span>
-            <div className={cn("text-xl font-medium tabular-nums tracking-tight", current >= 0 ? "text-emerald-500" : "text-orange-500")}>
-              {current > 0 ? `+${current.toFixed(2)}` : current.toFixed(2)} <span className="text-sm text-muted-foreground font-normal opacity-70">A</span>
+            <div className={cn("text-xl font-medium tabular-nums tracking-tight", current != null ? (current >= 0 ? "text-emerald-500" : "text-orange-500") : "")}>
+              {current != null ? (current > 0 ? `+${current.toFixed(2)}` : current.toFixed(2)) : "--"} <span className="text-sm text-muted-foreground font-normal opacity-70">A</span>
             </div>
           </div>
           <div className="space-y-1">
             <span className="text-xs text-muted-foreground flex items-center gap-1">
               Power
             </span>
-            <div className={cn("text-xl font-medium tabular-nums tracking-tight", power >= 0 ? "text-emerald-500" : "text-orange-500")}>
-              {power > 0 ? `+${power.toFixed(0)}` : power.toFixed(0)} <span className="text-sm text-muted-foreground font-normal opacity-70">W</span>
+            <div className={cn("text-xl font-medium tabular-nums tracking-tight", power != null ? (power >= 0 ? "text-emerald-500" : "text-orange-500") : "")}>
+              {power != null ? (power > 0 ? `+${power.toFixed(0)}` : power.toFixed(0)) : "--"} <span className="text-sm text-muted-foreground font-normal opacity-70">W</span>
             </div>
           </div>
           <div className="space-y-1">
@@ -81,8 +85,8 @@ export function BatteryCard({ data }: BatteryCardProps) {
               <Activity className="w-3 h-3" /> Temps
             </span>
             <div className="flex gap-2">
-              <div className="text-sm font-medium">T1: {temp1}°C</div>
-              <div className="text-sm font-medium">T2: {temp2}°C</div>
+              <div className="text-sm font-medium">T1: {fmt(temp1, 1)}°C</div>
+              <div className="text-sm font-medium">T2: {fmt(temp2, 1)}°C</div>
             </div>
           </div>
         </div>

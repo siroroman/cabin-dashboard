@@ -13,7 +13,7 @@ interface HeaterCardProps {
 
 export function HeaterCard({ data }: HeaterCardProps) {
   const queryClient = useQueryClient();
-  const [localPower, setLocalPower] = useState(data?.power_level ?? 4);
+  const [localPower, setLocalPower] = useState<number | undefined>(data?.power_level);
 
   useEffect(() => {
     if (data?.power_level !== undefined) {
@@ -43,10 +43,10 @@ export function HeaterCard({ data }: HeaterCardProps) {
     },
   });
 
-  const status = data?.power?.toLowerCase() || "off"; // OFF | ON | COOLING
-  const state = data?.state || "Shutdown";
-  const shellTemp = data?.shell_temp ?? 16;
-  const hasError = state.toLowerCase().includes("error") || state === "N/A";
+  const status = data?.power?.toLowerCase() || "off";
+  const state = data?.state;
+  const shellTemp = data?.shell_temp;
+  const hasError = state ? (state.toLowerCase().includes("error") || state === "N/A") : false;
 
   const getStatusColor = (s: string) => {
     const lowS = s.toLowerCase();
@@ -76,8 +76,8 @@ export function HeaterCard({ data }: HeaterCardProps) {
                 <AlertTriangle className="w-3 h-3" /> {state}
               </span>
             ) : (
-              <span className={cn("text-xs font-medium uppercase tracking-wider", getStatusColor(state))}>
-                {state}
+              <span className={cn("text-xs font-medium uppercase tracking-wider", state ? getStatusColor(state) : "text-muted-foreground")}>
+                {state ?? "--"}
               </span>
             )}
             <Switch 
@@ -108,7 +108,7 @@ export function HeaterCard({ data }: HeaterCardProps) {
                 <span className="text-sm text-muted-foreground">Shell Temp</span>
                 <div className="flex items-center gap-1">
                   <Thermometer className="w-4 h-4 text-orange-500/70" />
-                  <span className="text-3xl font-light tabular-nums tracking-tight">{shellTemp}<span className="text-lg text-muted-foreground ml-1">°C</span></span>
+                  <span className="text-3xl font-light tabular-nums tracking-tight">{shellTemp != null ? shellTemp : "--"}<span className="text-lg text-muted-foreground ml-1">°C</span></span>
                 </div>
               </div>
               
@@ -120,7 +120,7 @@ export function HeaterCard({ data }: HeaterCardProps) {
                       key={i} 
                       className={cn(
                         "w-2 h-6 rounded-full transition-colors",
-                        i < localPower 
+                        i < (localPower ?? 0) 
                           ? (status !== "off" ? "bg-orange-500" : "bg-muted-foreground/30") 
                           : "bg-muted"
                       )} 
@@ -138,17 +138,17 @@ export function HeaterCard({ data }: HeaterCardProps) {
                   size="icon" 
                   className="h-8 w-8 rounded-full hover:bg-background" 
                   onClick={() => powerMutation.mutate("down")} 
-                  disabled={status === "off" || localPower <= 1 || powerMutation.isPending}
+                  disabled={status === "off" || (localPower ?? 0) <= 1 || powerMutation.isPending}
                 >
                   <Minus className="w-4 h-4" />
                 </Button>
-                <div className="w-8 text-center font-medium tabular-nums text-sm">{localPower}</div>
+                <div className="w-8 text-center font-medium tabular-nums text-sm">{localPower ?? "--"}</div>
                 <Button 
                   variant="ghost" 
                   size="icon" 
                   className="h-8 w-8 rounded-full hover:bg-background" 
                   onClick={() => powerMutation.mutate("up")} 
-                  disabled={status === "off" || localPower >= 10 || powerMutation.isPending}
+                  disabled={status === "off" || (localPower ?? 0) >= 10 || powerMutation.isPending}
                 >
                   <Plus className="w-4 h-4" />
                 </Button>
