@@ -86,7 +86,7 @@ export function HeaterCard({ data, onActionStart, onActionEnd }: HeaterCardProps
     },
   });
 
-  const isBusy = toggleMutation.isPending || powerMutation.isPending;
+  const isBusy = false;
 
   const status = localStatus || "off";
   const state = localState;
