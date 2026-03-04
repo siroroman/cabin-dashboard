@@ -167,7 +167,9 @@ export function HeaterCard({ data, onActionStart, onActionEnd }: HeaterCardProps
                       className={cn(
                         "w-2 h-6 rounded-full transition-colors",
                         i < (localPower ?? 0) 
-                          ? (status !== "off" ? "bg-orange-500" : "bg-muted-foreground/30") 
+                          ? (status !== "off" 
+                            ? (i < 2 ? "bg-emerald-500" : i < 4 ? "bg-amber-500" : "bg-red-500")
+                            : "bg-muted-foreground/30") 
                           : "bg-muted"
                       )} 
                     />
