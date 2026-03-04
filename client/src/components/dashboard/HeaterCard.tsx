@@ -16,6 +16,8 @@ interface HeaterCardProps {
 export function HeaterCard({ data, onActionStart, onActionEnd }: HeaterCardProps) {
   const queryClient = useQueryClient();
   const [localPower, setLocalPower] = useState<number | undefined>(data?.power_level);
+  const [localStatus, setLocalStatus] = useState<string | undefined>(undefined);
+  const [localState, setLocalState] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     if (data?.power_level !== undefined) {
@@ -23,8 +25,28 @@ export function HeaterCard({ data, onActionStart, onActionEnd }: HeaterCardProps
     }
   }, [data?.power_level]);
 
+  useEffect(() => {
+    if (data?.power !== undefined) {
+      setLocalStatus(data.power.toLowerCase());
+    }
+  }, [data?.power]);
+
+  useEffect(() => {
+    if (data?.state !== undefined) {
+      setLocalState(data.state);
+    }
+  }, [data?.state]);
+
   const toggleMutation = useMutation({
     mutationFn: async () => {
+      const currentStatus = localStatus || "off";
+      if (currentStatus === "off") {
+        setLocalStatus("on");
+        setLocalState("Starting...");
+      } else {
+        setLocalStatus("off");
+        setLocalState("Shutting down...");
+      }
       onActionStart?.();
       await cabinApi.toggleHeater();
       await new Promise(r => setTimeout(r, 1000));
@@ -32,15 +54,22 @@ export function HeaterCard({ data, onActionStart, onActionEnd }: HeaterCardProps
     },
     onSuccess: (newData) => {
       queryClient.setQueryData(["/heater/status"], newData);
+      if (newData?.power) setLocalStatus(newData.power.toLowerCase());
+      if (newData?.state) setLocalState(newData.state);
       onActionEnd?.();
     },
     onError: () => {
+      if (data?.power) setLocalStatus(data.power.toLowerCase());
+      if (data?.state) setLocalState(data.state);
       onActionEnd?.();
     },
   });
 
   const powerMutation = useMutation({
     mutationFn: async (action: "up" | "down") => {
+      const current = localPower ?? 0;
+      const optimistic = action === "up" ? Math.min(current + 1, 6) : Math.max(current - 1, 1);
+      setLocalPower(optimistic);
       onActionStart?.();
       await cabinApi.adjustHeaterPower(action);
       await new Promise(r => setTimeout(r, 1000));
@@ -48,25 +77,28 @@ export function HeaterCard({ data, onActionStart, onActionEnd }: HeaterCardProps
     },
     onSuccess: (newData) => {
       queryClient.setQueryData(["/heater/status"], newData);
+      if (newData?.power_level !== undefined) setLocalPower(newData.power_level);
       onActionEnd?.();
     },
     onError: () => {
+      if (data?.power_level !== undefined) setLocalPower(data.power_level);
       onActionEnd?.();
     },
   });
 
   const isBusy = toggleMutation.isPending || powerMutation.isPending;
 
-  const status = data?.power?.toLowerCase() || "off";
-  const state = data?.state;
+  const status = localStatus || "off";
+  const state = localState;
   const shellTemp = data?.shell_temp;
   const hasError = state ? (state.toLowerCase().includes("error") || state === "N/A") : false;
 
   const getStatusColor = (s: string) => {
     const lowS = s.toLowerCase();
     if (lowS === "on" || lowS === "heating") return "text-orange-500";
-    if (lowS === "starting" || lowS === "ignition") return "text-amber-500";
-    if (lowS === "cooling" || lowS === "blew") return "text-blue-400";
+    if (lowS === "starting" || lowS === "starting...") return "text-amber-500";
+    if (lowS === "ignition") return "text-amber-500";
+    if (lowS === "shutting down..." || lowS === "cooling" || lowS === "blew") return "text-blue-400";
     return "text-muted-foreground";
   };
 
