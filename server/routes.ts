@@ -1,16 +1,141 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
+
+const CABIN_API_URL = "https://coletta-undelusory-decennially.ngrok-free.dev";
+
+async function proxyRequest(
+  method: string,
+  path: string,
+  token?: string,
+  body?: any,
+  contentType?: string
+) {
+  const headers: Record<string, string> = {};
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+  if (contentType) headers["Content-Type"] = contentType;
+  else if (body && typeof body === "string") headers["Content-Type"] = "application/x-www-form-urlencoded";
+  else if (body) headers["Content-Type"] = "application/json";
+
+  const res = await fetch(`${CABIN_API_URL}${path}`, {
+    method,
+    headers,
+    body: body ? (typeof body === "string" ? body : JSON.stringify(body)) : undefined,
+  });
+
+  const data = await res.json().catch(() => null);
+  return { status: res.status, data };
+}
 
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
-  // put application routes here
-  // prefix all routes with /api
 
-  // use storage to perform CRUD operations on the storage interface
-  // e.g. storage.insertUser(user) or storage.getUserByUsername(username)
+  app.post("/api/token", async (req, res) => {
+    try {
+      const { username, password } = req.body;
+      const params = new URLSearchParams();
+      params.append("username", username);
+      params.append("password", password);
+
+      const result = await proxyRequest("POST", "/token", undefined, params.toString(), "application/x-www-form-urlencoded");
+      res.status(result.status).json(result.data);
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  app.post("/api/logout", async (req, res) => {
+    try {
+      const token = req.headers.authorization?.replace("Bearer ", "");
+      const result = await proxyRequest("POST", "/logout", token);
+      res.status(result.status).json(result.data);
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  app.get("/api/battery/status", async (req, res) => {
+    try {
+      const token = req.headers.authorization?.replace("Bearer ", "");
+      const result = await proxyRequest("GET", "/battery/status", token);
+      res.status(result.status).json(result.data);
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  app.get("/api/heater/status", async (req, res) => {
+    try {
+      const token = req.headers.authorization?.replace("Bearer ", "");
+      const result = await proxyRequest("GET", "/heater/status", token);
+      res.status(result.status).json(result.data);
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  app.post("/api/heater/toggle", async (req, res) => {
+    try {
+      const token = req.headers.authorization?.replace("Bearer ", "");
+      const result = await proxyRequest("POST", "/heater/toggle", token);
+      res.status(result.status).json(result.data);
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  app.post("/api/heater/mode", async (req, res) => {
+    try {
+      const token = req.headers.authorization?.replace("Bearer ", "");
+      const result = await proxyRequest("POST", "/heater/mode", token);
+      res.status(result.status).json(result.data);
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  app.post("/api/heater/temperature", async (req, res) => {
+    try {
+      const token = req.headers.authorization?.replace("Bearer ", "");
+      const action = req.query.action as string;
+      const result = await proxyRequest("POST", `/heater/temperature?action=${action}`, token);
+      res.status(result.status).json(result.data);
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  app.post("/api/heater/power-level", async (req, res) => {
+    try {
+      const token = req.headers.authorization?.replace("Bearer ", "");
+      const action = req.query.action as string;
+      const result = await proxyRequest("POST", `/heater/power-level?action=${action}`, token);
+      res.status(result.status).json(result.data);
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  app.get("/api/mppt/status", async (req, res) => {
+    try {
+      const token = req.headers.authorization?.replace("Bearer ", "");
+      const result = await proxyRequest("GET", "/mppt/status", token);
+      res.status(result.status).json(result.data);
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  app.get("/api/temperature/status", async (req, res) => {
+    try {
+      const token = req.headers.authorization?.replace("Bearer ", "");
+      const result = await proxyRequest("GET", "/temperature/status", token);
+      res.status(result.status).json(result.data);
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
 
   return httpServer;
 }

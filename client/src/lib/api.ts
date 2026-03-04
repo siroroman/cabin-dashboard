@@ -1,79 +1,49 @@
-import axios from "axios";
+const API_BASE = "/api";
 
-const API_BASE_URL = "https://coletta-undelusory-decennially.ngrok-free.dev";
-
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
-
-// Request interceptor to add the bearer token
-api.interceptors.request.use((config) => {
+async function request(method: string, path: string, body?: any, contentType?: string) {
   const token = localStorage.getItem("access_token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  const headers: Record<string, string> = {};
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+  if (contentType) headers["Content-Type"] = contentType;
+  else if (body) headers["Content-Type"] = "application/json";
+
+  const res = await fetch(`${API_BASE}${path}`, {
+    method,
+    headers,
+    body: body ? (typeof body === "string" ? body : JSON.stringify(body)) : undefined,
+  });
+
+  const data = await res.json().catch(() => null);
+
+  if (!res.ok) {
+    const err: any = new Error(data?.detail || data?.error || "Request failed");
+    err.status = res.status;
+    err.response = { data };
+    throw err;
   }
-  return config;
-});
+
+  return data;
+}
 
 export const cabinApi = {
-  // Auth
   login: async (username: string, password: string) => {
-    const params = new URLSearchParams();
-    params.append("username", username);
-    params.append("password", password);
-    const response = await api.post("/token", params, {
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    });
-    if (response.data.access_token) {
-      localStorage.setItem("access_token", response.data.access_token);
+    const data = await request("POST", "/token", { username, password });
+    if (data.access_token) {
+      localStorage.setItem("access_token", data.access_token);
     }
-    return response.data;
+    return data;
   },
   logout: async () => {
-    await api.post("/logout");
+    await request("POST", "/logout");
     localStorage.removeItem("access_token");
   },
 
-  // Battery
-  getBatteryStatus: async () => {
-    const response = await api.get("/battery/status");
-    return response.data;
-  },
-
-  // Heater
-  getHeaterStatus: async () => {
-    const response = await api.get("/heater/status");
-    return response.data;
-  },
-  toggleHeater: async () => {
-    const response = await api.post("/heater/toggle");
-    return response.data;
-  },
-  setHeaterMode: async () => {
-    const response = await api.post("/heater/mode");
-    return response.data;
-  },
-  adjustHeaterTemp: async (action: "up" | "down") => {
-    const response = await api.post(`/heater/temperature?action=${action}`);
-    return response.data;
-  },
-  adjustHeaterPower: async (action: "up" | "down") => {
-    const response = await api.post(`/heater/power-level?action=${action}`);
-    return response.data;
-  },
-
-  // MPPT
-  getMpptStatus: async () => {
-    const response = await api.get("/mppt/status");
-    return response.data;
-  },
-
-  // Temperature
-  getTemperatureStatus: async () => {
-    const response = await api.get("/temperature/status");
-    return response.data;
-  },
+  getBatteryStatus: () => request("GET", "/battery/status"),
+  getHeaterStatus: () => request("GET", "/heater/status"),
+  toggleHeater: () => request("POST", "/heater/toggle"),
+  setHeaterMode: () => request("POST", "/heater/mode"),
+  adjustHeaterTemp: (action: "up" | "down") => request("POST", `/heater/temperature?action=${action}`),
+  adjustHeaterPower: (action: "up" | "down") => request("POST", `/heater/power-level?action=${action}`),
+  getMpptStatus: () => request("GET", "/mppt/status"),
+  getTemperatureStatus: () => request("GET", "/temperature/status"),
 };
