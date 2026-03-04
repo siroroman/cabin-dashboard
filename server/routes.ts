@@ -3,6 +3,8 @@ import { createServer, type Server } from "http";
 
 const CABIN_API_URL = "https://coletta-undelusory-decennially.ngrok-free.dev";
 
+const responseCache = new Map<string, any>();
+
 async function proxyRequest(
   method: string,
   path: string,
@@ -22,7 +24,20 @@ async function proxyRequest(
     body: body ? (typeof body === "string" ? body : JSON.stringify(body)) : undefined,
   });
 
+  if (res.status === 304) {
+    const cached = responseCache.get(path);
+    if (cached) {
+      return { status: 200, data: cached };
+    }
+    return { status: 200, data: null };
+  }
+
   const data = await res.json().catch(() => null);
+
+  if (res.ok && data != null && method === "GET") {
+    responseCache.set(path, data);
+  }
+
   return { status: res.status, data };
 }
 
