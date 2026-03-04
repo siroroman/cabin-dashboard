@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
@@ -70,25 +70,55 @@ export function HeaterCard({ data, onActionStart, onActionEnd }: HeaterCardProps
     },
   });
 
-  const powerMutation = useMutation({
-    mutationFn: async (action: "up" | "down") => {
-      const current = localPower ?? 0;
-      const optimistic = action === "up" ? Math.min(current + 1, 6) : Math.max(current - 1, 1);
-      setLocalPower(optimistic);
-      onActionStart?.();
-      await cabinApi.adjustHeaterPower(action);
+  const powerDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const serverPowerRef = useRef<number | undefined>(data?.power_level);
+
+  useEffect(() => {
+    if (data?.power_level !== undefined) {
+      serverPowerRef.current = data.power_level;
+    }
+  }, [data?.power_level]);
+
+  const submitPowerChange = useCallback(async (targetLevel: number) => {
+    const serverLevel = serverPowerRef.current ?? 0;
+    const diff = targetLevel - serverLevel;
+    if (diff === 0) return;
+
+    onActionStart?.();
+    const steps = Math.abs(diff);
+    const direction = diff > 0 ? "up" : "down";
+    for (let i = 0; i < steps; i++) {
+      await cabinApi.adjustHeaterPower(direction);
+    }
+    try {
       const statusResult = await cabinApi.getHeaterStatusFresh();
-      return statusResult;
-    },
-    onSuccess: (newData) => {
-      applyStatus(newData);
+      applyStatus(statusResult);
+    } finally {
       onActionEnd?.();
-    },
-    onError: () => {
-      if (data?.power_level !== undefined) setLocalPower(data.power_level);
-      onActionEnd?.();
-    },
-  });
+    }
+  }, [onActionStart, onActionEnd]);
+
+  const handlePowerChange = useCallback((action: "up" | "down") => {
+    setLocalPower(prev => {
+      const current = prev ?? 0;
+      const next = action === "up" ? Math.min(current + 1, 6) : Math.max(current - 1, 1);
+
+      if (powerDebounceRef.current) {
+        clearTimeout(powerDebounceRef.current);
+      }
+      powerDebounceRef.current = setTimeout(() => {
+        submitPowerChange(next);
+      }, 2000);
+
+      return next;
+    });
+  }, [submitPowerChange]);
+
+  useEffect(() => {
+    return () => {
+      if (powerDebounceRef.current) clearTimeout(powerDebounceRef.current);
+    };
+  }, []);
 
   const isBusy = false;
 
@@ -189,7 +219,7 @@ export function HeaterCard({ data, onActionStart, onActionEnd }: HeaterCardProps
                   variant="ghost" 
                   size="icon" 
                   className="h-8 w-8 rounded-full hover:bg-background" 
-                  onClick={() => powerMutation.mutate("down")} 
+                  onClick={() => handlePowerChange("down")} 
                   disabled={status === "off" || (localPower ?? 0) <= 1 || isBusy}
                 >
                   <Minus className="w-4 h-4" />
@@ -199,7 +229,7 @@ export function HeaterCard({ data, onActionStart, onActionEnd }: HeaterCardProps
                   variant="ghost" 
                   size="icon" 
                   className="h-8 w-8 rounded-full hover:bg-background" 
-                  onClick={() => powerMutation.mutate("up")} 
+                  onClick={() => handlePowerChange("up")} 
                   disabled={status === "off" || (localPower ?? 0) >= 6 || isBusy}
                 >
                   <Plus className="w-4 h-4" />
