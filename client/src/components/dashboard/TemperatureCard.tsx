@@ -38,26 +38,27 @@ export function TemperatureCard({ data }: TemperatureCardProps) {
           <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Indoor</h3>
           
           <div className="space-y-3 flex-1 flex flex-col">
-            <div className="flex items-end gap-2">
-              <span className={`text-4xl font-light tabular-nums tracking-tight ${indoorTemp != null ? getTempColor(indoorTemp) : ""}`}>
-                {indoorTemp != null ? indoorTemp.toFixed(1) : "--"}
-              </span>
-              <span className="text-lg text-muted-foreground mb-1">°C</span>
+            <div className="flex items-center justify-between">
+              <div className="flex items-end gap-1">
+                <span className={`text-4xl font-light tabular-nums tracking-tight ${indoorTemp != null ? getTempColor(indoorTemp) : ""}`}>
+                  {indoorTemp != null ? indoorTemp.toFixed(1) : "--"}
+                </span>
+                <span className="text-lg text-muted-foreground mb-1">°C</span>
+              </div>
+              <div className="flex items-end gap-1">
+                <Droplets className="w-5 h-5 text-cyan-500 mb-1.5" />
+                <span className="text-4xl font-light tabular-nums tracking-tight text-cyan-500">
+                  {indoorHum != null ? indoorHum : "--"}
+                </span>
+                <span className="text-lg text-muted-foreground mb-1">%</span>
+              </div>
             </div>
             
             <div className="flex flex-col gap-2 pt-4 border-t border-border/30 mt-auto">
               <div className="flex items-center justify-between text-sm">
                 <div className="flex items-center gap-1.5 text-muted-foreground">
-                  <Droplets className="w-4 h-4 text-cyan-500" />
-                  <span>Humidity</span>
-                </div>
-                <span className="font-medium">{indoorHum != null ? `${indoorHum}%` : "--"}</span>
-              </div>
-              
-              <div className="flex items-center justify-between text-sm">
-                <div className="flex items-center gap-1.5 text-muted-foreground">
                   {indoorBattery != null ? getBatteryIcon(indoorBattery) : <BatteryFull className="w-4 h-4 text-muted-foreground" />}
-                  <span>Battery</span>
+                  <span>Sensor Battery</span>
                 </div>
                 <span className={`font-medium ${indoorBattery != null ? "text-emerald-500" : ""}`}>
                   {indoorBattery != null ? `${indoorBattery}%` : "--"}
