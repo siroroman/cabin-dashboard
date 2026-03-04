@@ -12,7 +12,8 @@ export function BatteryCard({ data }: BatteryCardProps) {
   const isCharging = (data?.current ?? 0) > 0;
   const voltage = data?.voltage ?? 27.7;
   const current = data?.current ?? 0;
-  const power = data?.power ?? 0;
+  const rawPower = Math.abs(data?.power ?? 0);
+  const power = current < 0 ? -rawPower : rawPower;
   const temp1 = data?.temperatures?.sensor_1 ?? 8.2;
   const temp2 = data?.temperatures?.sensor_2 ?? 8.2;
 
@@ -27,7 +28,7 @@ export function BatteryCard({ data }: BatteryCardProps) {
             <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-500">
               {isCharging ? <BatteryCharging className="w-5 h-5" /> : <Battery className="w-5 h-5" />}
             </div>
-            Electrical System
+            Battery
           </CardTitle>
           {isCharging && (
             <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-500 text-xs font-medium uppercase tracking-wider">

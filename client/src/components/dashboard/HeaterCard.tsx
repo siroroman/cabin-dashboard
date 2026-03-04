@@ -22,13 +22,25 @@ export function HeaterCard({ data }: HeaterCardProps) {
   }, [data?.power_level]);
 
   const toggleMutation = useMutation({
-    mutationFn: cabinApi.toggleHeater,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["/heater/status"] }),
+    mutationFn: async () => {
+      await cabinApi.toggleHeater();
+      await new Promise(r => setTimeout(r, 1000));
+      return cabinApi.getHeaterStatus();
+    },
+    onSuccess: (newData) => {
+      queryClient.setQueryData(["/heater/status"], newData);
+    },
   });
 
   const powerMutation = useMutation({
-    mutationFn: cabinApi.adjustHeaterPower,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["/heater/status"] }),
+    mutationFn: async (action: "up" | "down") => {
+      await cabinApi.adjustHeaterPower(action);
+      await new Promise(r => setTimeout(r, 1000));
+      return cabinApi.getHeaterStatus();
+    },
+    onSuccess: (newData) => {
+      queryClient.setQueryData(["/heater/status"], newData);
+    },
   });
 
   const status = data?.power?.toLowerCase() || "off"; // OFF | ON | COOLING

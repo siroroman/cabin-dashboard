@@ -23,25 +23,25 @@ export default function Dashboard() {
   const { data: tempData } = useQuery({
     queryKey: ["/temperature/status"],
     queryFn: cabinApi.getTemperatureStatus,
-    refetchInterval: 5000,
+    refetchInterval: 10000,
   });
 
   const { data: heaterData } = useQuery({
     queryKey: ["/heater/status"],
     queryFn: cabinApi.getHeaterStatus,
-    refetchInterval: 5000,
+    refetchInterval: 10000,
   });
 
   const { data: batteryData } = useQuery({
     queryKey: ["/battery/status"],
     queryFn: cabinApi.getBatteryStatus,
-    refetchInterval: 5000,
+    refetchInterval: 10000,
   });
 
   const { data: mpptData } = useQuery({
     queryKey: ["/mppt/status"],
     queryFn: cabinApi.getMpptStatus,
-    refetchInterval: 5000,
+    refetchInterval: 10000,
   });
 
   return (
