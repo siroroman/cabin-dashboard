@@ -19,6 +19,13 @@ export function BatteryCard({ data }: BatteryCardProps) {
 
   const fmt = (v: number | undefined, decimals: number) => v != null ? v.toFixed(decimals) : "--";
 
+  const getSocColor = (s: number | undefined) => {
+    if (s == null) return "bg-muted-foreground/30";
+    if (s <= 20) return "bg-red-500";
+    if (s <= 50) return "bg-orange-500";
+    return "bg-emerald-500";
+  };
+
   return (
     <Card className="h-full border-border/50 shadow-sm hover:shadow-md transition-shadow overflow-hidden rounded-2xl bg-card/50 backdrop-blur-sm flex flex-col relative">
        {isCharging && (
@@ -47,10 +54,15 @@ export function BatteryCard({ data }: BatteryCardProps) {
             <span className="text-4xl font-light tabular-nums tracking-tight">{soc != null ? soc : "--"}<span className="text-xl text-muted-foreground ml-1">%</span></span>
           </div>
           <div className="relative pt-2">
-            <Progress value={soc ?? 0} className="h-3 bg-muted" />
+            <div className="h-3 bg-muted rounded-full overflow-hidden">
+              <div
+                className={cn("h-full rounded-full transition-all duration-500", getSocColor(soc))}
+                style={{ width: `${soc ?? 0}%` }}
+              />
+            </div>
             {isCharging && (
               <div 
-                className="absolute inset-0 bg-emerald-500/20 rounded-full animate-pulse" 
+                className={cn("absolute inset-0 rounded-full animate-pulse", getSocColor(soc).replace("bg-", "bg-") + "/20")}
                 style={{ width: `${soc ?? 0}%` }}
               />
             )}
