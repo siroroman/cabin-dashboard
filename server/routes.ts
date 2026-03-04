@@ -13,7 +13,9 @@ async function proxyRequest(
   contentType?: string,
   skipCache?: boolean
 ) {
-  const headers: Record<string, string> = {};
+  const headers: Record<string, string> = {
+    "ngrok-skip-browser-warning": "true",
+  };
   if (token) headers["Authorization"] = `Bearer ${token}`;
   if (contentType) headers["Content-Type"] = contentType;
   else if (body && typeof body === "string") headers["Content-Type"] = "application/x-www-form-urlencoded";
