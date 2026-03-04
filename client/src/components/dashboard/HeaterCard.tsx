@@ -129,7 +129,7 @@ export function HeaterCard({ data, onActionStart, onActionEnd }: HeaterCardProps
               <div className="flex flex-col items-end">
                 <span className="text-sm text-muted-foreground mb-2">Power Level</span>
                 <div className="flex items-center gap-1">
-                  {Array.from({ length: 10 }).map((_, i) => (
+                  {Array.from({ length: 6 }).map((_, i) => (
                     <div 
                       key={i} 
                       className={cn(
@@ -162,7 +162,7 @@ export function HeaterCard({ data, onActionStart, onActionEnd }: HeaterCardProps
                   size="icon" 
                   className="h-8 w-8 rounded-full hover:bg-background" 
                   onClick={() => powerMutation.mutate("up")} 
-                  disabled={status === "off" || (localPower ?? 0) >= 10 || isBusy}
+                  disabled={status === "off" || (localPower ?? 0) >= 6 || isBusy}
                 >
                   <Plus className="w-4 h-4" />
                 </Button>
