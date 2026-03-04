@@ -1,0 +1,324 @@
+Here is the updated Web Dashboard specification with the additional requirements:
+	•	Humidity for indoor and outdoor sensors
+	•	Sensor battery level
+	•	Logout button on the dashboard
+
+⸻
+
+Smart Home Dashboard — Web UI Specification
+
+Overview
+
+Design and implement a web-based dashboard UI for a smart home system. The goal is to create a clean, minimalist, and modern interface that provides clear insight into key system metrics and allows quick interaction with core components.
+
+The dashboard should use a modular card-based layout consisting of four main cards. The architecture must allow easy expansion with additional cards in the future without major layout changes.
+
+The interface should use clear typography, intuitive icons, and carefully chosen colors to present system information in a way that is both visually appealing and easy to understand.
+
+The dashboard must fully support Light Mode and Dark Mode.
+
+⸻
+
+General Requirements
+
+• Responsive web design optimized for mobile first, but scalable to tablets and desktop screens
+• Minimalist and clean layout
+• Full Light Mode and Dark Mode support
+• Modular card-based architecture
+• Easy to add additional cards in the future
+• Smooth interactions and modern visual style
+• Clear iconography for quick understanding
+• Status colors used carefully:
+	•	Normal
+	•	Active
+	•	Warning
+	•	Error
+	•	Inactive
+
+⸻
+
+Dashboard Layout
+
+The dashboard contains four primary cards displayed in a responsive grid layout.
+
+Layout behavior:
+
+Mobile:
+• Cards stacked vertically
+
+Tablet / Desktop:
+• 2×2 grid layout
+
+⸻
+
+Top Navigation / Header
+
+The dashboard should include a minimal top header containing:
+
+• Application title or logo
+• Optional connection status indicator
+• Logout button
+
+Logout Button
+
+Purpose: Allow the user to securely exit the dashboard.
+
+UI suggestions:
+
+• Icon + text (Logout)
+• Positioned in the top-right corner
+• Use a clear logout icon (arrow leaving door)
+• Optional confirmation dialog
+
+Example:
+
+Logout → confirm dialog
+“Are you sure you want to log out?”
+
+⸻
+
+1. Temperature Card
+
+Purpose
+
+Display environmental conditions from indoor and outdoor sensors.
+
+⸻
+
+Display
+
+Indoor Sensor
+
+• Temperature (°C)
+• Humidity (%)
+• Sensor battery level (%)
+
+Outdoor Sensor
+
+• Temperature (°C)
+• Humidity (%)
+• Sensor battery level (%)
+
+⸻
+
+UI Suggestions
+
+• Thermometer icon for temperature
+• Droplet icon for humidity
+• Battery icon with percentage indicator
+• Clearly separated Indoor and Outdoor sections
+
+Optional color indications:
+
+Temperature
+• Blue → cold
+• Neutral → comfortable
+• Orange/Red → warm
+
+Humidity
+• Neutral color (blue/teal)
+
+Battery
+• Green → good
+• Yellow → medium
+• Red → low
+
+⸻
+
+Example Layout
+
+Indoor
+
+Temperature: 22.4 °C
+Humidity: 45 %
+Battery: 87 %
+
+Outdoor
+
+Temperature: 5.8 °C
+Humidity: 71 %
+Battery: 72 %
+
+⸻
+
+2. Diesel Heater Card
+
+Purpose
+
+Monitor and control the diesel heater.
+
+⸻
+
+Display
+
+• Heater status
+	•	On
+	•	Off
+	•	Error
+
+• Current power level
+• Core temperature (°C)
+• Error message (if present)
+
+⸻
+
+Controls
+
+• Power toggle button (On / Off)
+• Increase power button (+)
+• Decrease power button (–)
+
+⸻
+
+UI Suggestions
+
+• Flame icon
+• Highlight active heating state
+• Red color for error states
+• Visual power level indicator (bars or steps)
+
+⸻
+
+3. Battery Card
+
+Purpose
+
+Display battery and electrical system data.
+
+⸻
+
+Display
+
+• State of Charge (SOC, %)
+• Voltage (V)
+• Current (A)
+• Power (W)
+• Battery Temperature 1 (°C)
+• Battery Temperature 2 (°C)
+
+⸻
+
+UI Suggestions
+
+• Battery icon
+• SOC displayed as a progress bar
+• Charging / discharging indicators
+
+Example indicators:
+
+Charging → green arrow
+Discharging → orange arrow
+Idle → neutral icon
+
+⸻
+
+4. Solar MPPT Controller Card
+
+Purpose
+
+Display solar panel production and energy statistics.
+
+⸻
+
+Display
+
+• Current solar power output (W)
+• Total energy produced today (Wh or kWh)
+
+⸻
+
+UI Suggestions
+
+• Solar panel or sun icon
+• Highlight active production
+• Optional mini production graph
+
+⸻
+
+Design Guidelines
+
+Style
+
+The dashboard should feel:
+
+• Clean
+• Minimal
+• Modern
+• Professional
+
+⸻
+
+Inspiration
+
+Design inspiration may come from:
+
+• Tesla App
+• Apple Home App
+• Home Assistant Mobile UI
+
+⸻
+
+Typography
+
+• Clear hierarchy
+• Large numbers for key metrics
+• Easily readable labels
+
+⸻
+
+Icons
+
+Use modern icon libraries such as:
+
+• Material Icons
+• SF Symbols
+• Lucide
+• Feather Icons
+
+Icons should represent:
+
+• Temperature
+• Humidity
+• Heater
+• Battery
+• Solar production
+• Logout
+
+⸻
+
+Technical Recommendations
+
+Possible implementation technologies:
+
+• React + Tailwind CSS
+• React + Material UI
+• Vue
+• Simple HTML / CSS / JS prototype
+
+The architecture should allow easy addition of new cards without major refactoring.
+
+⸻
+
+Optional Enhancements
+
+• Animated status indicators
+• Micro-interactions on controls
+• Real-time updates (WebSocket / polling)
+• Solar production mini chart
+• Battery health indicators
+
+⸻
+
+Goal
+
+The final dashboard should feel like a production-ready smart home control panel that is:
+
+• Clean
+• Beautiful
+• Functional
+• Easy to expand
+• Easy to understand at a glance
+
+⸻
+
+If you’d like, I can also create a visual wireframe layout for this dashboard (the structure most AI UI generators understand best).
