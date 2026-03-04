@@ -37,6 +37,13 @@ export function HeaterCard({ data, onActionStart, onActionEnd }: HeaterCardProps
     }
   }, [data?.state]);
 
+  const applyStatus = (newData: any) => {
+    queryClient.setQueryData(["/heater/status"], newData);
+    if (newData?.power) setLocalStatus(newData.power.toLowerCase());
+    if (newData?.state) setLocalState(newData.state);
+    if (newData?.power_level !== undefined) setLocalPower(newData.power_level);
+  };
+
   const toggleMutation = useMutation({
     mutationFn: async () => {
       const currentStatus = localStatus || "off";
@@ -48,14 +55,12 @@ export function HeaterCard({ data, onActionStart, onActionEnd }: HeaterCardProps
         setLocalState("Shutting down...");
       }
       onActionStart?.();
-      await cabinApi.toggleHeater();
-      await new Promise(r => setTimeout(r, 1000));
-      return cabinApi.getHeaterStatusFresh();
+      const actionResult = await cabinApi.toggleHeater();
+      const statusResult = await cabinApi.getHeaterStatusFresh();
+      return statusResult;
     },
     onSuccess: (newData) => {
-      queryClient.setQueryData(["/heater/status"], newData);
-      if (newData?.power) setLocalStatus(newData.power.toLowerCase());
-      if (newData?.state) setLocalState(newData.state);
+      applyStatus(newData);
       onActionEnd?.();
     },
     onError: () => {
@@ -72,12 +77,11 @@ export function HeaterCard({ data, onActionStart, onActionEnd }: HeaterCardProps
       setLocalPower(optimistic);
       onActionStart?.();
       await cabinApi.adjustHeaterPower(action);
-      await new Promise(r => setTimeout(r, 1000));
-      return cabinApi.getHeaterStatusFresh();
+      const statusResult = await cabinApi.getHeaterStatusFresh();
+      return statusResult;
     },
     onSuccess: (newData) => {
-      queryClient.setQueryData(["/heater/status"], newData);
-      if (newData?.power_level !== undefined) setLocalPower(newData.power_level);
+      applyStatus(newData);
       onActionEnd?.();
     },
     onError: () => {
