@@ -80,7 +80,7 @@ export function HeaterCard() {
                       className={cn(
                         "w-2 h-6 rounded-full transition-colors",
                         i < power 
-                          ? (isOn ? "bg-orange-500" : "bg-muted-foreground/30") 
+                          ? (status !== "off" ? "bg-orange-500" : "bg-muted-foreground/30") 
                           : "bg-muted"
                       )} 
                     />
@@ -97,7 +97,7 @@ export function HeaterCard() {
                   size="icon" 
                   className="h-8 w-8 rounded-full hover:bg-background" 
                   onClick={decreasePower} 
-                  disabled={!isOn || power <= 1}
+                  disabled={status === "off" || power <= 1}
                 >
                   <Minus className="w-4 h-4" />
                 </Button>
@@ -107,7 +107,7 @@ export function HeaterCard() {
                   size="icon" 
                   className="h-8 w-8 rounded-full hover:bg-background" 
                   onClick={increasePower} 
-                  disabled={!isOn || power >= 10}
+                  disabled={status === "off" || power >= 10}
                 >
                   <Plus className="w-4 h-4" />
                 </Button>
