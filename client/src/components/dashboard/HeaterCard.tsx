@@ -10,6 +10,9 @@ export function HeaterCard() {
   const [power, setPower] = useState(4);
   const [hasError, setHasError] = useState(false);
 
+  const increasePower = () => setPower(Math.min(10, power + 1));
+  const decreasePower = () => setPower(Math.max(1, power - 1));
+
   const getStatusColor = (s: typeof status) => {
     switch(s) {
       case "heating": return "text-orange-500";
