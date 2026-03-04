@@ -6,23 +6,29 @@ import { Flame, Plus, Minus, AlertTriangle, Thermometer } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function HeaterCard() {
-  const [isOn, setIsOn] = useState(true);
+  const [status, setStatus] = useState<"off" | "heating" | "starting" | "blew">("heating");
   const [power, setPower] = useState(4);
   const [hasError, setHasError] = useState(false);
 
-  const increasePower = () => setPower(Math.min(10, power + 1));
-  const decreasePower = () => setPower(Math.max(1, power - 1));
+  const getStatusColor = (s: typeof status) => {
+    switch(s) {
+      case "heating": return "text-orange-500";
+      case "starting": return "text-amber-500";
+      case "blew": return "text-blue-400";
+      default: return "text-muted-foreground";
+    }
+  };
 
   return (
-    <Card className={cn("h-full border-border/50 shadow-sm hover:shadow-md transition-all overflow-hidden rounded-2xl bg-card/50 backdrop-blur-sm relative flex flex-col", isOn ? "border-orange-500/20" : "")}>
-      {isOn && !hasError && (
+    <Card className={cn("h-full border-border/50 shadow-sm hover:shadow-md transition-all overflow-hidden rounded-2xl bg-card/50 backdrop-blur-sm relative flex flex-col", status !== "off" ? "border-orange-500/20" : "")}>
+      {status !== "off" && !hasError && (
         <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/5 blur-3xl rounded-full -z-10" />
       )}
       
       <CardHeader className="pb-2 flex-shrink-0">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg flex items-center gap-2 font-medium">
-            <div className={cn("p-2 rounded-lg transition-colors", isOn ? "bg-orange-500/10 text-orange-500" : "bg-muted text-muted-foreground")}>
+            <div className={cn("p-2 rounded-lg transition-colors", status !== "off" ? "bg-orange-500/10 text-orange-500" : "bg-muted text-muted-foreground")}>
               <Flame className="w-5 h-5" />
             </div>
             Diesel Heater
@@ -33,11 +39,11 @@ export function HeaterCard() {
                 <AlertTriangle className="w-3 h-3" /> Error
               </span>
             ) : (
-              <span className={cn("text-xs font-medium uppercase tracking-wider", isOn ? "text-orange-500" : "text-muted-foreground")}>
-                {isOn ? "Active" : "Standby"}
+              <span className={cn("text-xs font-medium uppercase tracking-wider", getStatusColor(status))}>
+                {status}
               </span>
             )}
-            <Switch checked={isOn} onCheckedChange={setIsOn} />
+            <Switch checked={status !== "off"} onCheckedChange={(checked) => setStatus(checked ? "starting" : "off")} />
           </div>
         </div>
       </CardHeader>

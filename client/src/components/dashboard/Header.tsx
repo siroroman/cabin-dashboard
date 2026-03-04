@@ -26,12 +26,6 @@ export function Header() {
       </div>
 
       <div className="flex items-center gap-2 md:gap-4">
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary/50 text-secondary-foreground text-sm font-medium">
-          <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          <Wifi className="w-4 h-4 text-emerald-500" />
-          <span className="hidden sm:inline-block">Connected</span>
-        </div>
-
         <Button 
           variant="ghost" 
           size="icon" 
@@ -43,7 +37,11 @@ export function Header() {
 
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button variant="ghost" className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full sm:rounded-md px-2 sm:px-4 transition-colors">
+            <Button 
+              variant="ghost" 
+              className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full sm:rounded-md px-2 sm:px-4 transition-colors"
+              onClick={() => window.location.href = "/login"}
+            >
               <LogOut className="w-5 h-5 sm:mr-2" />
               <span className="hidden sm:inline-block">Logout</span>
             </Button>
