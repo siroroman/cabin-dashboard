@@ -21,7 +21,6 @@ export function SolarCard({ data }: SolarCardProps) {
 
   return (
     <Card className="h-full border-border/50 shadow-sm hover:shadow-md transition-shadow overflow-hidden rounded-2xl bg-card/50 backdrop-blur-sm flex flex-col relative">
-      <div className="absolute top-0 left-0 w-full h-32 bg-amber-500/5 blur-3xl -z-10" />
       <CardHeader className="pb-2 flex-shrink-0">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg flex items-center gap-2 font-medium">
