@@ -35,7 +35,14 @@ async function proxyRequest(
   const data = await res.json().catch(() => null);
 
   if (res.ok && data != null && method === "GET") {
-    responseCache.set(path, data);
+    if (data.error) {
+      const cached = responseCache.get(path);
+      if (cached) {
+        return { status: 200, data: cached };
+      }
+    } else {
+      responseCache.set(path, data);
+    }
   }
 
   return { status: res.status, data };
