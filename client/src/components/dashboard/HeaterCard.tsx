@@ -9,9 +9,11 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface HeaterCardProps {
   data?: any;
+  onActionStart?: () => void;
+  onActionEnd?: () => void;
 }
 
-export function HeaterCard({ data }: HeaterCardProps) {
+export function HeaterCard({ data, onActionStart, onActionEnd }: HeaterCardProps) {
   const queryClient = useQueryClient();
   const [localPower, setLocalPower] = useState<number | undefined>(data?.power_level);
 
@@ -23,25 +25,37 @@ export function HeaterCard({ data }: HeaterCardProps) {
 
   const toggleMutation = useMutation({
     mutationFn: async () => {
+      onActionStart?.();
       await cabinApi.toggleHeater();
       await new Promise(r => setTimeout(r, 1000));
       return cabinApi.getHeaterStatus();
     },
     onSuccess: (newData) => {
       queryClient.setQueryData(["/heater/status"], newData);
+      onActionEnd?.();
+    },
+    onError: () => {
+      onActionEnd?.();
     },
   });
 
   const powerMutation = useMutation({
     mutationFn: async (action: "up" | "down") => {
+      onActionStart?.();
       await cabinApi.adjustHeaterPower(action);
       await new Promise(r => setTimeout(r, 1000));
       return cabinApi.getHeaterStatus();
     },
     onSuccess: (newData) => {
       queryClient.setQueryData(["/heater/status"], newData);
+      onActionEnd?.();
+    },
+    onError: () => {
+      onActionEnd?.();
     },
   });
+
+  const isBusy = toggleMutation.isPending || powerMutation.isPending;
 
   const status = data?.power?.toLowerCase() || "off";
   const state = data?.state;
@@ -83,7 +97,7 @@ export function HeaterCard({ data }: HeaterCardProps) {
             <Switch 
               checked={status === "on" || status === "cooling"} 
               onCheckedChange={() => toggleMutation.mutate()} 
-              disabled={toggleMutation.isPending}
+              disabled={isBusy}
             />
           </div>
         </div>
@@ -97,7 +111,7 @@ export function HeaterCard({ data }: HeaterCardProps) {
               <p className="font-medium text-destructive text-sm">System Error</p>
               <p className="text-xs text-destructive/80 mt-1">{state}</p>
             </div>
-            <Button variant="outline" size="sm" className="mt-2" onClick={() => toggleMutation.mutate()}>
+            <Button variant="outline" size="sm" className="mt-2" onClick={() => toggleMutation.mutate()} disabled={isBusy}>
               Reset
             </Button>
           </div>
@@ -138,7 +152,7 @@ export function HeaterCard({ data }: HeaterCardProps) {
                   size="icon" 
                   className="h-8 w-8 rounded-full hover:bg-background" 
                   onClick={() => powerMutation.mutate("down")} 
-                  disabled={status === "off" || (localPower ?? 0) <= 1 || powerMutation.isPending}
+                  disabled={status === "off" || (localPower ?? 0) <= 1 || isBusy}
                 >
                   <Minus className="w-4 h-4" />
                 </Button>
@@ -148,7 +162,7 @@ export function HeaterCard({ data }: HeaterCardProps) {
                   size="icon" 
                   className="h-8 w-8 rounded-full hover:bg-background" 
                   onClick={() => powerMutation.mutate("up")} 
-                  disabled={status === "off" || (localPower ?? 0) >= 10 || powerMutation.isPending}
+                  disabled={status === "off" || (localPower ?? 0) >= 10 || isBusy}
                 >
                   <Plus className="w-4 h-4" />
                 </Button>
