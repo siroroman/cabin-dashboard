@@ -11,7 +11,7 @@ import { useLocation } from "wouter";
 
 export default function Dashboard() {
   const [, setLocation] = useLocation();
-  const [pollingPaused, setPollingPaused] = useState(false);
+  const [heaterPollingPaused, setHeaterPollingPaused] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("access_token");
@@ -20,33 +20,31 @@ export default function Dashboard() {
     }
   }, [setLocation]);
 
-  const refetchInterval = pollingPaused ? false as const : 10000;
-
-  const pausePolling = useCallback(() => setPollingPaused(true), []);
-  const resumePolling = useCallback(() => setPollingPaused(false), []);
+  const pauseHeaterPolling = useCallback(() => setHeaterPollingPaused(true), []);
+  const resumeHeaterPolling = useCallback(() => setHeaterPollingPaused(false), []);
 
   const { data: tempData } = useQuery({
     queryKey: ["/temperature/status"],
     queryFn: cabinApi.getTemperatureStatus,
-    refetchInterval,
+    refetchInterval: 10000,
   });
 
   const { data: heaterData } = useQuery({
     queryKey: ["/heater/status"],
     queryFn: cabinApi.getHeaterStatus,
-    refetchInterval,
+    refetchInterval: heaterPollingPaused ? false as const : 10000,
   });
 
   const { data: batteryData } = useQuery({
     queryKey: ["/battery/status"],
     queryFn: cabinApi.getBatteryStatus,
-    refetchInterval,
+    refetchInterval: 10000,
   });
 
   const { data: mpptData } = useQuery({
     queryKey: ["/mppt/status"],
     queryFn: cabinApi.getMpptStatus,
-    refetchInterval,
+    refetchInterval: 10000,
   });
 
   return (
@@ -64,7 +62,7 @@ export default function Dashboard() {
             <TemperatureCard data={tempData} />
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="h-full">
-            <HeaterCard data={heaterData} onActionStart={pausePolling} onActionEnd={resumePolling} />
+            <HeaterCard data={heaterData} onActionStart={pauseHeaterPolling} onActionEnd={resumeHeaterPolling} />
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="h-full">
             <BatteryCard data={batteryData} />
