@@ -28,7 +28,7 @@ export function HeaterCard({ data, onActionStart, onActionEnd }: HeaterCardProps
       onActionStart?.();
       await cabinApi.toggleHeater();
       await new Promise(r => setTimeout(r, 1000));
-      return cabinApi.getHeaterStatus();
+      return cabinApi.getHeaterStatusFresh();
     },
     onSuccess: (newData) => {
       queryClient.setQueryData(["/heater/status"], newData);
@@ -44,7 +44,7 @@ export function HeaterCard({ data, onActionStart, onActionEnd }: HeaterCardProps
       onActionStart?.();
       await cabinApi.adjustHeaterPower(action);
       await new Promise(r => setTimeout(r, 1000));
-      return cabinApi.getHeaterStatus();
+      return cabinApi.getHeaterStatusFresh();
     },
     onSuccess: (newData) => {
       queryClient.setQueryData(["/heater/status"], newData);

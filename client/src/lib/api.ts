@@ -40,6 +40,7 @@ export const cabinApi = {
 
   getBatteryStatus: () => request("GET", "/battery/status"),
   getHeaterStatus: () => request("GET", "/heater/status"),
+  getHeaterStatusFresh: () => request("GET", "/heater/status?fresh=1"),
   toggleHeater: () => request("POST", "/heater/toggle"),
   setHeaterMode: () => request("POST", "/heater/mode"),
   adjustHeaterTemp: (action: "up" | "down") => request("POST", `/heater/temperature?action=${action}`),
