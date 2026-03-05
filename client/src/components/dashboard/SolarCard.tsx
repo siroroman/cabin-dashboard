@@ -1,14 +1,63 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Sun, Zap } from "lucide-react";
+import { Sun } from "lucide-react";
+
+const MAX_OUTPUT = 860;
 
 interface SolarCardProps {
   data?: any;
+}
+
+function CircularProgress({ percentage, size = 120, strokeWidth = 8 }: { percentage: number; size?: number; strokeWidth?: number }) {
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (percentage / 100) * circumference;
+  const center = size / 2;
+
+  const getColor = (pct: number) => {
+    if (pct < 25) return { stroke: "#f59e0b", bg: "rgba(245,158,11,0.12)" };
+    if (pct < 60) return { stroke: "#f59e0b", bg: "rgba(245,158,11,0.12)" };
+    return { stroke: "#22c55e", bg: "rgba(34,197,94,0.12)" };
+  };
+
+  const colors = getColor(percentage);
+
+  return (
+    <div className="relative" style={{ width: size, height: size }}>
+      <svg width={size} height={size} className="-rotate-90">
+        <circle
+          cx={center}
+          cy={center}
+          r={radius}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={strokeWidth}
+          className="text-muted/30"
+        />
+        <circle
+          cx={center}
+          cy={center}
+          r={radius}
+          fill="none"
+          stroke={colors.stroke}
+          strokeWidth={strokeWidth}
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+          strokeLinecap="round"
+          className="transition-all duration-700 ease-out"
+        />
+      </svg>
+      <div className="absolute inset-0 flex items-center justify-center">
+        <span className="text-2xl font-semibold tabular-nums">{Math.round(percentage)}<span className="text-sm text-muted-foreground">%</span></span>
+      </div>
+    </div>
+  );
 }
 
 export function SolarCard({ data }: SolarCardProps) {
   const chargingMode = data?.charge_state;
   const solarPower = data?.solar_power;
   const yieldToday = data?.yield_today_wh != null ? data.yield_today_wh / 1000 : undefined;
+  const percentage = solarPower != null ? Math.min((solarPower / MAX_OUTPUT) * 100, 100) : 0;
 
   const getModeColor = (mode: string) => {
     switch (mode) {
@@ -34,37 +83,36 @@ export function SolarCard({ data }: SolarCardProps) {
           </div>
         </div>
       </CardHeader>
-      <CardContent className="pt-4 flex flex-col flex-1 space-y-8">
-        <div className="flex justify-between items-start">
-          <div className="space-y-1">
-            <span className="text-sm text-muted-foreground">Current Output</span>
-            <div className="text-4xl font-light tabular-nums tracking-tight text-amber-500">
-              {solarPower != null ? solarPower : "--"} <span className="text-xl text-amber-500/70 font-normal ml-1">W</span>
+      <CardContent className="pt-4 flex flex-col flex-1">
+        <div className="flex items-center justify-around flex-1">
+          <div className="flex flex-col items-center gap-2">
+            <CircularProgress percentage={solarPower != null ? percentage : 0} />
+            <div className="text-center">
+              <div className="text-2xl font-light tabular-nums tracking-tight text-amber-500">
+                {solarPower != null ? solarPower : "--"} <span className="text-base text-amber-500/70 font-normal">W</span>
+              </div>
+              <span className="text-xs text-muted-foreground">of {MAX_OUTPUT}W max</span>
             </div>
           </div>
-          
-          <div className="space-y-1 text-right">
-            <span className="text-sm text-muted-foreground">Total Today</span>
-            <div className="text-2xl font-medium tabular-nums tracking-tight">
-              {yieldToday != null ? yieldToday.toFixed(1) : "--"} <span className="text-base text-muted-foreground font-normal ml-1">kWh</span>
-            </div>
-          </div>
-        </div>
 
-        <div className="grid grid-cols-1 gap-4 mt-auto">
-          <div className="p-4 rounded-xl bg-secondary/30 border border-border/50 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-background/50 border border-border/50">
-                <Zap className="w-4 h-4 text-amber-500" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-xs text-muted-foreground uppercase tracking-tight font-semibold">Charging Status</span>
-                <span className="text-sm font-medium">{chargingMode && chargingMode !== "OFF" ? "System Active" : "Idle"}</span>
+          <div className="flex flex-col gap-4 text-right">
+            <div>
+              <span className="text-xs text-muted-foreground">Total Today</span>
+              <div className="text-xl font-medium tabular-nums tracking-tight">
+                {yieldToday != null ? yieldToday.toFixed(1) : "--"} <span className="text-sm text-muted-foreground font-normal">kWh</span>
               </div>
             </div>
-            <div className="text-right">
-              <span className="text-xs text-muted-foreground block">Battery Voltage</span>
-              <span className="text-sm font-bold text-emerald-500">{data?.battery_voltage?.toFixed(1) ?? "--"} V</span>
+            <div>
+              <span className="text-xs text-muted-foreground">Battery Voltage</span>
+              <div className="text-xl font-medium tabular-nums tracking-tight text-emerald-500">
+                {data?.battery_voltage?.toFixed(1) ?? "--"} <span className="text-sm text-emerald-500/70 font-normal">V</span>
+              </div>
+            </div>
+            <div>
+              <span className="text-xs text-muted-foreground">Charge Current</span>
+              <div className="text-xl font-medium tabular-nums tracking-tight">
+                {data?.charging_current?.toFixed(1) ?? "--"} <span className="text-sm text-muted-foreground font-normal">A</span>
+              </div>
             </div>
           </div>
         </div>
