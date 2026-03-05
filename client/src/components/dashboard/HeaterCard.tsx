@@ -11,9 +11,10 @@ interface HeaterCardProps {
   data?: any;
   onActionStart?: () => void;
   onActionEnd?: () => void;
+  onReconnect?: () => Promise<void>;
 }
 
-export function HeaterCard({ data, onActionStart, onActionEnd }: HeaterCardProps) {
+export function HeaterCard({ data, onActionStart, onActionEnd, onReconnect }: HeaterCardProps) {
   const queryClient = useQueryClient();
   const [localPower, setLocalPower] = useState<number | undefined>(data?.power_level);
   const [localStatus, setLocalStatus] = useState<string | undefined>(undefined);
@@ -44,6 +45,18 @@ export function HeaterCard({ data, onActionStart, onActionEnd }: HeaterCardProps
     if (newData?.power_level !== undefined) setLocalPower(newData.power_level);
   };
 
+  const withReconnect = useCallback(async <T,>(fn: () => Promise<T>): Promise<T> => {
+    try {
+      return await fn();
+    } catch (e: any) {
+      if (e.status === 503 && onReconnect) {
+        await onReconnect();
+        return await fn();
+      }
+      throw e;
+    }
+  }, [onReconnect]);
+
   const toggleMutation = useMutation({
     mutationFn: async () => {
       const currentStatus = localStatus || "off";
@@ -55,7 +68,7 @@ export function HeaterCard({ data, onActionStart, onActionEnd }: HeaterCardProps
         setLocalState("Shutting down...");
       }
       onActionStart?.();
-      const actionResult = await cabinApi.toggleHeater();
+      await withReconnect(() => cabinApi.toggleHeater());
       const statusResult = await cabinApi.getHeaterStatusFresh();
       return statusResult;
     },
@@ -64,8 +77,10 @@ export function HeaterCard({ data, onActionStart, onActionEnd }: HeaterCardProps
       onActionEnd?.();
     },
     onError: () => {
-      if (data?.power) setLocalStatus(data.power.toLowerCase());
-      if (data?.state) setLocalState(data.state);
+      const prevStatus = data?.power?.toLowerCase() || "off";
+      const prevState = data?.state || "Shutdown";
+      setLocalStatus(prevStatus);
+      setLocalState(prevState);
       onActionEnd?.();
     },
   });
@@ -88,7 +103,7 @@ export function HeaterCard({ data, onActionStart, onActionEnd }: HeaterCardProps
     const steps = Math.abs(diff);
     const direction = diff > 0 ? "up" : "down";
     for (let i = 0; i < steps; i++) {
-      await cabinApi.adjustHeaterPower(direction);
+      await withReconnect(() => cabinApi.adjustHeaterPower(direction));
     }
     try {
       const statusResult = await cabinApi.getHeaterStatusFresh();
@@ -96,7 +111,7 @@ export function HeaterCard({ data, onActionStart, onActionEnd }: HeaterCardProps
     } finally {
       onActionEnd?.();
     }
-  }, [onActionStart, onActionEnd]);
+  }, [onActionStart, onActionEnd, withReconnect]);
 
   const handlePowerChange = useCallback((action: "up" | "down") => {
     setLocalPower(prev => {
