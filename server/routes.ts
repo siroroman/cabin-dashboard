@@ -31,6 +31,13 @@ async function proxyRequest(
     body: body ? (typeof body === "string" ? body : JSON.stringify(body)) : undefined,
   });
 
+  const contentTypeHeader = res.headers.get("content-type") || "";
+  if (!contentTypeHeader.includes("application/json") && method === "POST" && path === "/token") {
+    const rawText = await res.text();
+    console.error("[proxyRequest] Non-JSON response for /token. Status:", res.status, "Content-Type:", contentTypeHeader, "Body:", rawText.substring(0, 500));
+    return { status: 502, data: { detail: "Upstream returned non-JSON response" } };
+  }
+
   if (res.status === 304) {
     if (skipCache) {
       return { status: 200, data: null };
@@ -68,13 +75,16 @@ export async function registerRoutes(
   app.post("/api/token", async (req, res) => {
     try {
       const { username, password } = req.body;
+      console.log("[token] Login attempt for:", username);
       const params = new URLSearchParams();
       params.append("username", username);
       params.append("password", password);
 
       const result = await proxyRequest("POST", "/token", undefined, params.toString(), "application/x-www-form-urlencoded");
+      console.log("[token] Upstream response status:", result.status, "data:", JSON.stringify(result.data));
       res.status(result.status).json(result.data);
     } catch (e: any) {
+      console.error("[token] Error:", e.message);
       res.status(500).json({ error: e.message });
     }
   });
