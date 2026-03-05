@@ -11,10 +11,9 @@ interface HeaterCardProps {
   data?: any;
   onActionStart?: () => void;
   onActionEnd?: () => void;
-  onReconnect?: () => Promise<void>;
 }
 
-export function HeaterCard({ data, onActionStart, onActionEnd, onReconnect }: HeaterCardProps) {
+export function HeaterCard({ data, onActionStart, onActionEnd }: HeaterCardProps) {
   const queryClient = useQueryClient();
   const [localPower, setLocalPower] = useState<number | undefined>(data?.power_level);
   const [localStatus, setLocalStatus] = useState<string | undefined>(undefined);
@@ -45,18 +44,6 @@ export function HeaterCard({ data, onActionStart, onActionEnd, onReconnect }: He
     if (newData?.power_level !== undefined) setLocalPower(newData.power_level);
   };
 
-  const withReconnect = useCallback(async <T,>(fn: () => Promise<T>): Promise<T> => {
-    try {
-      return await fn();
-    } catch (e: any) {
-      if (e.status === 503 && onReconnect) {
-        await onReconnect();
-        return await fn();
-      }
-      throw e;
-    }
-  }, [onReconnect]);
-
   const toggleMutation = useMutation({
     mutationFn: async () => {
       const currentStatus = localStatus || "off";
@@ -68,7 +55,7 @@ export function HeaterCard({ data, onActionStart, onActionEnd, onReconnect }: He
         setLocalState("Shutting down...");
       }
       onActionStart?.();
-      await withReconnect(() => cabinApi.toggleHeater());
+      await cabinApi.toggleHeater();
       await new Promise(resolve => setTimeout(resolve, 1000));
       const statusResult = await cabinApi.getHeaterStatusFresh();
       return statusResult;
@@ -104,7 +91,7 @@ export function HeaterCard({ data, onActionStart, onActionEnd, onReconnect }: He
     const steps = Math.abs(diff);
     const direction = diff > 0 ? "up" : "down";
     for (let i = 0; i < steps; i++) {
-      await withReconnect(() => cabinApi.adjustHeaterPower(direction));
+      await cabinApi.adjustHeaterPower(direction);
     }
     await new Promise(resolve => setTimeout(resolve, 1000));
     try {
@@ -113,7 +100,7 @@ export function HeaterCard({ data, onActionStart, onActionEnd, onReconnect }: He
     } finally {
       onActionEnd?.();
     }
-  }, [onActionStart, onActionEnd, withReconnect]);
+  }, [onActionStart, onActionEnd]);
 
   const handlePowerChange = useCallback((action: "up" | "down") => {
     setLocalPower(prev => {

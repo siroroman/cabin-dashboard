@@ -6,74 +6,17 @@ import { SolarCard } from "@/components/dashboard/SolarCard";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { cabinApi } from "@/lib/api";
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useLocation } from "wouter";
 
 export default function Dashboard() {
   const [, setLocation] = useLocation();
   const [heaterPollingPaused, setHeaterPollingPaused] = useState(false);
-  const [heaterConnected, setHeaterConnected] = useState(false);
-  const connectingRef = useRef(false);
 
   useEffect(() => {
     const token = localStorage.getItem("access_token");
     if (!token) {
       setLocation("/login");
-      return;
-    }
-
-    let cancelled = false;
-
-    async function connectHeater() {
-      if (connectingRef.current) return;
-      connectingRef.current = true;
-      try {
-        await cabinApi.connectHeater();
-        if (!cancelled) setHeaterConnected(true);
-      } catch (e: any) {
-        console.error("[heater] connect failed:", e);
-        if (e.status === 401) {
-          localStorage.removeItem("access_token");
-          setLocation("/login");
-          return;
-        }
-        if (!cancelled) {
-          setTimeout(connectHeater, 5000);
-        }
-      } finally {
-        connectingRef.current = false;
-      }
-    }
-
-    connectHeater();
-
-    return () => {
-      cancelled = true;
-      cabinApi.disconnectHeater().catch(() => {});
-    };
-  }, [setLocation]);
-
-  const reconnectHeater = useCallback(async () => {
-    if (connectingRef.current) return;
-    connectingRef.current = true;
-    try {
-      await cabinApi.connectHeater();
-      setHeaterConnected(true);
-    } catch (e: any) {
-      console.error("[heater] reconnect failed:", e);
-      if (e.status === 401) {
-        localStorage.removeItem("access_token");
-        setLocation("/login");
-        return;
-      }
-      setHeaterConnected(false);
-      setTimeout(() => {
-        connectingRef.current = false;
-        reconnectHeater();
-      }, 5000);
-      return;
-    } finally {
-      connectingRef.current = false;
     }
   }, [setLocation]);
 
@@ -88,25 +31,8 @@ export default function Dashboard() {
 
   const { data: heaterData } = useQuery({
     queryKey: ["/heater/status"],
-    queryFn: async () => {
-      try {
-        return await cabinApi.getHeaterStatus();
-      } catch (e: any) {
-        if (e.status === 503) {
-          setHeaterConnected(false);
-          try {
-            await reconnectHeater();
-            return await cabinApi.getHeaterStatus();
-          } catch {
-            throw e;
-          }
-        }
-        throw e;
-      }
-    },
+    queryFn: cabinApi.getHeaterStatus,
     refetchInterval: heaterPollingPaused ? false as const : 10000,
-    enabled: heaterConnected,
-    retry: false,
   });
 
   const { data: batteryData } = useQuery({
@@ -136,7 +62,7 @@ export default function Dashboard() {
             <TemperatureCard data={tempData} />
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="h-full">
-            <HeaterCard data={heaterData} onActionStart={pauseHeaterPolling} onActionEnd={resumeHeaterPolling} onReconnect={reconnectHeater} />
+            <HeaterCard data={heaterData} onActionStart={pauseHeaterPolling} onActionEnd={resumeHeaterPolling} />
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="h-full">
             <BatteryCard data={batteryData} />

@@ -109,28 +109,6 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/heater/connect", async (req, res) => {
-    try {
-      const token = req.headers.authorization?.replace("Bearer ", "");
-      const result = await proxyRequest("POST", "/heater/connect", token);
-      console.log("[heater] connect:", result.status, JSON.stringify(result.data));
-      res.status(result.status).json(result.data);
-    } catch (e: any) {
-      res.status(500).json({ error: e.message });
-    }
-  });
-
-  app.post("/api/heater/disconnect", async (req, res) => {
-    try {
-      const token = req.headers.authorization?.replace("Bearer ", "");
-      const result = await proxyRequest("POST", "/heater/disconnect", token);
-      console.log("[heater] disconnect:", result.status, JSON.stringify(result.data));
-      res.status(result.status).json(result.data);
-    } catch (e: any) {
-      res.status(500).json({ error: e.message });
-    }
-  });
-
   app.get("/api/heater/status", async (req, res) => {
     try {
       const token = req.headers.authorization?.replace("Bearer ", "");
