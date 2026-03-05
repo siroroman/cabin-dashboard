@@ -69,6 +69,7 @@ export function HeaterCard({ data, onActionStart, onActionEnd, onReconnect }: He
       }
       onActionStart?.();
       await withReconnect(() => cabinApi.toggleHeater());
+      await new Promise(resolve => setTimeout(resolve, 1000));
       const statusResult = await cabinApi.getHeaterStatusFresh();
       return statusResult;
     },
@@ -105,6 +106,7 @@ export function HeaterCard({ data, onActionStart, onActionEnd, onReconnect }: He
     for (let i = 0; i < steps; i++) {
       await withReconnect(() => cabinApi.adjustHeaterPower(direction));
     }
+    await new Promise(resolve => setTimeout(resolve, 1000));
     try {
       const statusResult = await cabinApi.getHeaterStatusFresh();
       applyStatus(statusResult);
