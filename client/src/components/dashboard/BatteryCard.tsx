@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Battery, BatteryCharging, Zap, Activity } from "lucide-react";
+import { Battery, BatteryCharging, Zap, Activity, Heart, RefreshCw } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 
@@ -15,6 +15,8 @@ export function BatteryCard({ data }: BatteryCardProps) {
   const power = rawPower != null && current != null ? (current < 0 ? -rawPower : rawPower) : undefined;
   const temp1 = data?.temperatures?.sensor_1;
   const temp2 = data?.temperatures?.sensor_2;
+  const health = data?.health;
+  const cycles = data?.cycles;
   const isCharging = current != null && current > 0;
 
   const fmt = (v: number | undefined, decimals: number) => v != null ? v.toFixed(decimals) : "--";
@@ -69,27 +71,37 @@ export function BatteryCard({ data }: BatteryCardProps) {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-x-4 gap-y-6 pt-4 border-t border-border/30 mt-auto">
+        <div className="grid grid-cols-3 gap-x-4 gap-y-5 pt-4 border-t border-border/30 mt-auto">
           <div className="space-y-1">
-            <span className="text-xs text-muted-foreground flex items-center gap-1">
-              Voltage
-            </span>
-            <div className="text-xl font-medium tabular-nums tracking-tight">{fmt(voltage, 1)} <span className="text-sm text-muted-foreground font-normal">V</span></div>
+            <span className="text-xs text-muted-foreground">Voltage</span>
+            <div className="text-lg font-medium tabular-nums tracking-tight">{fmt(voltage, 1)} <span className="text-sm text-muted-foreground font-normal">V</span></div>
           </div>
           <div className="space-y-1">
-            <span className="text-xs text-muted-foreground flex items-center gap-1">
-              Current
-            </span>
-            <div className={cn("text-xl font-medium tabular-nums tracking-tight", current != null ? (current >= 0 ? "text-emerald-500" : "text-orange-500") : "")}>
+            <span className="text-xs text-muted-foreground">Current</span>
+            <div className={cn("text-lg font-medium tabular-nums tracking-tight", current != null ? (current >= 0 ? "text-emerald-500" : "text-orange-500") : "")}>
               {current != null ? (current > 0 ? `+${current.toFixed(2)}` : current.toFixed(2)) : "--"} <span className="text-sm text-muted-foreground font-normal opacity-70">A</span>
             </div>
           </div>
           <div className="space-y-1">
-            <span className="text-xs text-muted-foreground flex items-center gap-1">
-              Power
-            </span>
-            <div className={cn("text-xl font-medium tabular-nums tracking-tight", power != null ? (power >= 0 ? "text-emerald-500" : "text-orange-500") : "")}>
+            <span className="text-xs text-muted-foreground">Power</span>
+            <div className={cn("text-lg font-medium tabular-nums tracking-tight", power != null ? (power >= 0 ? "text-emerald-500" : "text-orange-500") : "")}>
               {power != null ? (power > 0 ? `+${power.toFixed(0)}` : power.toFixed(0)) : "--"} <span className="text-sm text-muted-foreground font-normal opacity-70">W</span>
+            </div>
+          </div>
+          <div className="space-y-1">
+            <span className="text-xs text-muted-foreground flex items-center gap-1">
+              <Heart className="w-3 h-3" /> Health
+            </span>
+            <div className={cn("text-lg font-medium tabular-nums tracking-tight", health != null ? (health >= 80 ? "text-emerald-500" : health >= 50 ? "text-amber-500" : "text-red-500") : "")}>
+              {health != null ? health : "--"}<span className="text-sm text-muted-foreground font-normal">%</span>
+            </div>
+          </div>
+          <div className="space-y-1">
+            <span className="text-xs text-muted-foreground flex items-center gap-1">
+              <RefreshCw className="w-3 h-3" /> Cycles
+            </span>
+            <div className="text-lg font-medium tabular-nums tracking-tight">
+              {cycles != null ? cycles : "--"}
             </div>
           </div>
           <div className="space-y-1">
@@ -97,8 +109,8 @@ export function BatteryCard({ data }: BatteryCardProps) {
               <Activity className="w-3 h-3" /> Temps
             </span>
             <div className="flex gap-2">
-              <div className="text-sm font-medium">T1: {fmt(temp1, 1)}°C</div>
-              <div className="text-sm font-medium">T2: {fmt(temp2, 1)}°C</div>
+              <div className="text-sm font-medium">{fmt(temp1, 1)}°</div>
+              <div className="text-sm font-medium">{fmt(temp2, 1)}°</div>
             </div>
           </div>
         </div>

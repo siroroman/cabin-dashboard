@@ -14,9 +14,9 @@ function CircularProgress({ percentage, size = 120, strokeWidth = 8 }: { percent
   const center = size / 2;
 
   const getColor = (pct: number) => {
-    if (pct < 25) return { stroke: "#f59e0b", bg: "rgba(245,158,11,0.12)" };
-    if (pct < 60) return { stroke: "#f59e0b", bg: "rgba(245,158,11,0.12)" };
-    return { stroke: "#22c55e", bg: "rgba(34,197,94,0.12)" };
+    if (pct < 20) return { stroke: "#ef4444" };
+    if (pct < 50) return { stroke: "#f59e0b" };
+    return { stroke: "#22c55e" };
   };
 
   const colors = getColor(percentage);
