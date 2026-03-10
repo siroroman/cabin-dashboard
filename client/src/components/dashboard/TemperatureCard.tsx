@@ -41,7 +41,7 @@ export function TemperatureCard({ data }: TemperatureCardProps) {
             <div className="flex items-center justify-around">
               <div className="flex flex-col items-center">
                 <div className="flex items-end gap-1">
-                  <span className={`text-3xl font-light tabular-nums tracking-tight ${indoorTemp != null ? getTempColor(indoorTemp) : ""}`}>
+                  <span className="text-4xl font-light tabular-nums tracking-tight">
                     {indoorTemp != null ? indoorTemp.toFixed(1) : "--"}
                   </span>
                   <span className="text-base text-muted-foreground mb-1">°C</span>
@@ -49,7 +49,7 @@ export function TemperatureCard({ data }: TemperatureCardProps) {
               </div>
               <div className="flex flex-col items-center">
                 <div className="flex items-end gap-1">
-                  <span className="text-3xl font-light tabular-nums tracking-tight text-cyan-500">
+                  <span className="text-4xl font-light tabular-nums tracking-tight">
                     {indoorHum != null ? indoorHum : "--"}
                   </span>
                   <span className="text-base text-muted-foreground mb-1">%</span>
