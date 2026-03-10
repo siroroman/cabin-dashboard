@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Thermometer, Droplets, BatteryFull, BatteryMedium, BatteryLow } from "lucide-react";
+import { Thermometer, BatteryFull, BatteryMedium, BatteryLow } from "lucide-react";
 
 interface TemperatureCardProps {
   data?: any;
@@ -41,19 +41,18 @@ export function TemperatureCard({ data }: TemperatureCardProps) {
             <div className="flex items-center justify-around">
               <div className="flex flex-col items-center">
                 <div className="flex items-end gap-1">
-                  <span className={`text-4xl font-light tabular-nums tracking-tight ${indoorTemp != null ? getTempColor(indoorTemp) : ""}`}>
+                  <span className={`text-3xl font-light tabular-nums tracking-tight ${indoorTemp != null ? getTempColor(indoorTemp) : ""}`}>
                     {indoorTemp != null ? indoorTemp.toFixed(1) : "--"}
                   </span>
-                  <span className="text-lg text-muted-foreground mb-1">°C</span>
+                  <span className="text-base text-muted-foreground mb-1">°C</span>
                 </div>
               </div>
               <div className="flex flex-col items-center">
                 <div className="flex items-end gap-1">
-                  <Droplets className="w-5 h-5 text-cyan-500 mb-1.5" />
-                  <span className="text-4xl font-light tabular-nums tracking-tight text-cyan-500">
+                  <span className="text-3xl font-light tabular-nums tracking-tight text-cyan-500">
                     {indoorHum != null ? indoorHum : "--"}
                   </span>
-                  <span className="text-lg text-muted-foreground mb-1">%</span>
+                  <span className="text-base text-muted-foreground mb-1">%</span>
                 </div>
               </div>
             </div>

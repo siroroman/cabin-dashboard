@@ -16,7 +16,7 @@ export function BatteryCard({ data }: BatteryCardProps) {
   const temp1 = data?.temperatures?.sensor_1;
   const temp2 = data?.temperatures?.sensor_2;
   const health = data?.health;
-  const cycles = data?.cycles;
+  const cycles = data?.cycle_count;
   const isCharging = current != null && current > 0;
 
   const fmt = (v: number | undefined, decimals: number) => v != null ? v.toFixed(decimals) : "--";
