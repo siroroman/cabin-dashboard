@@ -9,11 +9,18 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface HeaterCardProps {
   data?: any;
+  lastFetch?: number;
   onActionStart?: () => void;
   onActionEnd?: () => void;
 }
 
-export function HeaterCard({ data, onActionStart, onActionEnd }: HeaterCardProps) {
+function fmtFetchTime(ts?: number) {
+  if (!ts) return null;
+  const d = new Date(ts);
+  return d.toLocaleString(undefined, { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false });
+}
+
+export function HeaterCard({ data, lastFetch, onActionStart, onActionEnd }: HeaterCardProps) {
   const queryClient = useQueryClient();
   const [localPower, setLocalPower] = useState<number | undefined>(data?.power_level);
   const [localStatus, setLocalStatus] = useState<string | undefined>(undefined);
@@ -243,6 +250,11 @@ export function HeaterCard({ data, onActionStart, onActionEnd }: HeaterCardProps
           </div>
         )}
       </CardContent>
+      {fmtFetchTime(lastFetch) && (
+        <div className="pb-2 text-center text-[10px] text-muted-foreground/50 tabular-nums">
+          {fmtFetchTime(lastFetch)}
+        </div>
+      )}
     </Card>
   );
 }

@@ -5,9 +5,16 @@ import { cn } from "@/lib/utils";
 
 interface BatteryCardProps {
   data?: any;
+  lastFetch?: number;
 }
 
-export function BatteryCard({ data }: BatteryCardProps) {
+function fmtFetchTime(ts?: number) {
+  if (!ts) return null;
+  const d = new Date(ts);
+  return d.toLocaleString(undefined, { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false });
+}
+
+export function BatteryCard({ data, lastFetch }: BatteryCardProps) {
   const soc = data?.soc;
   const voltage = data?.voltage;
   const current = data?.current;
@@ -113,6 +120,11 @@ export function BatteryCard({ data }: BatteryCardProps) {
           </div>
         </div>
       </CardContent>
+      {fmtFetchTime(lastFetch) && (
+        <div className="pb-2 text-center text-[10px] text-muted-foreground/50 tabular-nums">
+          {fmtFetchTime(lastFetch)}
+        </div>
+      )}
     </Card>
   );
 }

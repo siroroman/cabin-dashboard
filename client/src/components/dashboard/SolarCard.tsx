@@ -1,3 +1,4 @@
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Sun } from "lucide-react";
 
@@ -5,6 +6,13 @@ const MAX_OUTPUT = 860;
 
 interface SolarCardProps {
   data?: any;
+  lastFetch?: number;
+}
+
+function fmtFetchTime(ts?: number) {
+  if (!ts) return null;
+  const d = new Date(ts);
+  return d.toLocaleString(undefined, { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false });
 }
 
 function CircularProgress({ percentage, power, size = 120, strokeWidth = 8 }: { percentage: number; power?: number; size?: number; strokeWidth?: number }) {
@@ -45,19 +53,19 @@ function CircularProgress({ percentage, power, size = 120, strokeWidth = 8 }: { 
   );
 }
 
-export function SolarCard({ data }: SolarCardProps) {
+export function SolarCard({ data, lastFetch }: SolarCardProps) {
   const chargingMode = data?.charge_state;
   const solarPower = data?.solar_power;
   const yieldToday = data?.yield_today_wh != null ? data.yield_today_wh / 1000 : undefined;
   const percentage = solarPower != null ? Math.min((solarPower / MAX_OUTPUT) * 100, 100) : 0;
 
-  const getModeColor = (mode: string) => {
-    switch (mode) {
-      case "BULK": return "text-amber-500 bg-amber-500/10 border-amber-500/20";
-      case "ABSORPTION": return "text-teal bg-teal/10 border-teal/20";
-      case "FLOAT": return "text-teal bg-teal/10 border-teal/20";
-      default: return "text-muted-foreground bg-muted/50 border-border";
-    }
+  const getModeStyle = (mode: string): React.CSSProperties => {
+    if (!mode || mode === "--") return {};
+    return {
+      color: "var(--tint)",
+      background: "color-mix(in srgb, var(--tint) 10%, transparent)",
+      borderColor: "color-mix(in srgb, var(--tint) 25%, transparent)",
+    };
   };
 
   return (
@@ -70,7 +78,10 @@ export function SolarCard({ data }: SolarCardProps) {
             </div>
             Solar MPPT
           </CardTitle>
-          <div className={`px-2.5 py-1 rounded-full border text-[10px] font-bold uppercase tracking-wider ${getModeColor(chargingMode ?? "")}`}>
+          <div
+            className="px-2.5 py-1 rounded-full border text-[10px] font-bold uppercase tracking-wider text-muted-foreground bg-muted/50 border-border"
+            style={getModeStyle(chargingMode ?? "")}
+          >
             {chargingMode ?? "--"}
           </div>
         </div>
@@ -104,6 +115,11 @@ export function SolarCard({ data }: SolarCardProps) {
           </div>
         </div>
       </CardContent>
+      {fmtFetchTime(lastFetch) && (
+        <div className="pb-2 text-center text-[10px] text-muted-foreground/50 tabular-nums">
+          {fmtFetchTime(lastFetch)}
+        </div>
+      )}
     </Card>
   );
 }

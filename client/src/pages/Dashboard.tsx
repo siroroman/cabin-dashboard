@@ -23,25 +23,25 @@ export default function Dashboard() {
   const pauseHeaterPolling = useCallback(() => setHeaterPollingPaused(true), []);
   const resumeHeaterPolling = useCallback(() => setHeaterPollingPaused(false), []);
 
-  const { data: tempData } = useQuery({
+  const { data: tempData, dataUpdatedAt: tempUpdatedAt } = useQuery({
     queryKey: ["/temperature/status"],
     queryFn: cabinApi.getTemperatureStatus,
     refetchInterval: 10000,
   });
 
-  const { data: heaterData } = useQuery({
+  const { data: heaterData, dataUpdatedAt: heaterUpdatedAt } = useQuery({
     queryKey: ["/heater/status"],
     queryFn: cabinApi.getHeaterStatus,
     refetchInterval: heaterPollingPaused ? false as const : 10000,
   });
 
-  const { data: batteryData } = useQuery({
+  const { data: batteryData, dataUpdatedAt: batteryUpdatedAt } = useQuery({
     queryKey: ["/battery/status"],
     queryFn: cabinApi.getBatteryStatus,
     refetchInterval: 10000,
   });
 
-  const { data: mpptData } = useQuery({
+  const { data: mpptData, dataUpdatedAt: mpptUpdatedAt } = useQuery({
     queryKey: ["/mppt/status"],
     queryFn: cabinApi.getMpptStatus,
     refetchInterval: 10000,
@@ -59,16 +59,16 @@ export default function Dashboard() {
           transition={{ duration: 0.5, staggerChildren: 0.1 }}
         >
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="h-full">
-            <TemperatureCard data={tempData} />
+            <TemperatureCard data={tempData} lastFetch={tempUpdatedAt} />
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="h-full">
-            <HeaterCard data={heaterData} onActionStart={pauseHeaterPolling} onActionEnd={resumeHeaterPolling} />
+            <HeaterCard data={heaterData} lastFetch={heaterUpdatedAt} onActionStart={pauseHeaterPolling} onActionEnd={resumeHeaterPolling} />
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="h-full">
-            <BatteryCard data={batteryData} />
+            <BatteryCard data={batteryData} lastFetch={batteryUpdatedAt} />
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="h-full">
-            <SolarCard data={mpptData} />
+            <SolarCard data={mpptData} lastFetch={mpptUpdatedAt} />
           </motion.div>
         </motion.div>
       </main>
