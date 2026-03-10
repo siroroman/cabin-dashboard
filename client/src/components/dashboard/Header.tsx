@@ -31,9 +31,9 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-10 bg-card/50 backdrop-blur-sm border-b border-border/50 px-4 md:px-6 h-16 flex items-center justify-between">
+    <header className="sticky top-0 z-10 bg-card/50 backdrop-blur-sm border-b border-border px-4 md:px-6 h-16 flex items-center justify-between">
       <div className="flex items-center gap-2">
-        <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground shadow-sm">
+        <div className="w-8 h-8 rounded-lg bg-teal/10 flex items-center justify-center text-teal shadow-sm">
           <Home className="w-5 h-5" />
         </div>
         <h1 className="font-semibold text-lg tracking-tight hidden sm:block">Smart Cabin</h1>
@@ -53,7 +53,7 @@ export function Header() {
           <AlertDialogTrigger asChild>
             <Button 
               variant="ghost" 
-              className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full sm:rounded-md px-2 sm:px-4 transition-colors"
+              className="text-teal bg-teal/10 hover:text-teal hover:bg-teal/10 rounded-full sm:rounded-md px-2 sm:px-4 transition-colors"
             >
               <LogOut className="w-5 h-5 sm:mr-2" />
               <span className="hidden sm:inline-block">Logout</span>

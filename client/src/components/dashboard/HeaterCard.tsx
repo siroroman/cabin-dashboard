@@ -133,23 +133,23 @@ export function HeaterCard({ data, onActionStart, onActionEnd }: HeaterCardProps
 
   const getStatusColor = (s: string) => {
     const lowS = s.toLowerCase();
-    if (lowS === "on" || lowS === "heating") return "text-orange-500";
+    if (lowS === "on" || lowS === "heating") return "text-teal";
     if (lowS === "starting" || lowS === "starting...") return "text-amber-500";
     if (lowS === "ignition") return "text-amber-500";
-    if (lowS === "shutting down..." || lowS === "cooling" || lowS === "blew") return "text-blue-400";
+    if (lowS === "shutting down..." || lowS === "cooling" || lowS === "blew") return "text-teal";
     return "text-muted-foreground";
   };
 
   return (
-    <Card className={cn("h-full border-border/50 shadow-sm hover:shadow-md transition-all overflow-hidden rounded-2xl bg-card/50 backdrop-blur-sm relative flex flex-col", status !== "off" ? "border-orange-500/20" : "")}>
+    <Card className="h-full border-border transition-all overflow-hidden rounded-2xl bg-card/50 backdrop-blur-sm relative flex flex-col">
       {status !== "off" && !hasError && (
-        <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/5 blur-3xl rounded-full -z-10" />
+        <div className="absolute top-0 right-0 w-32 h-32 bg-teal/5 blur-3xl rounded-full -z-10" />
       )}
       
       <CardHeader className="pb-2 flex-shrink-0">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg flex items-center gap-2 font-medium">
-            <div className={cn("p-2 rounded-lg transition-colors", status !== "off" ? "bg-orange-500/10 text-orange-500" : "bg-muted text-muted-foreground")}>
+            <div className="p-2 rounded-lg bg-teal/10 text-teal">
               <Flame className="w-5 h-5" />
             </div>
             Diesel Heater
@@ -191,7 +191,7 @@ export function HeaterCard({ data, onActionStart, onActionEnd }: HeaterCardProps
               <div className="flex flex-col">
                 <span className="text-sm text-muted-foreground">Shell Temp</span>
                 <div className="flex items-center gap-1">
-                  <Thermometer className="w-4 h-4 text-orange-500/70" />
+                  <Thermometer className="w-4 h-4 text-teal/70" />
                   <span className="text-3xl font-light tabular-nums tracking-tight">{shellTemp != null ? shellTemp : "--"}<span className="text-lg text-muted-foreground ml-1">°C</span></span>
                 </div>
               </div>
@@ -205,9 +205,9 @@ export function HeaterCard({ data, onActionStart, onActionEnd }: HeaterCardProps
                       className={cn(
                         "w-2 h-6 rounded-full transition-colors",
                         i < (localPower ?? 0) 
-                          ? (status !== "off" 
-                            ? (i < 2 ? "bg-emerald-500" : i < 4 ? "bg-amber-500" : "bg-red-500")
-                            : "bg-muted-foreground/30") 
+                          ? (status !== "off"
+                            ? "bg-teal"
+                            : "bg-muted-foreground/30")
                           : "bg-muted"
                       )} 
                     />
@@ -216,9 +216,9 @@ export function HeaterCard({ data, onActionStart, onActionEnd }: HeaterCardProps
               </div>
             </div>
 
-            <div className="pt-4 border-t border-border/30 flex items-center justify-between mt-auto">
+            <div className="pt-4 border-t border-border flex items-center justify-between mt-auto">
               <span className="text-sm font-medium">Heat Control</span>
-              <div className="flex items-center gap-2 bg-secondary/50 rounded-full p-1 border border-border/50">
+              <div className="flex items-center gap-2 bg-secondary/50 rounded-full p-1 border border-border">
                 <Button 
                   variant="ghost" 
                   size="icon" 

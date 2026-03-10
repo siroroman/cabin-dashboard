@@ -5,6 +5,7 @@
 
 @theme inline {
   --font-sans: "Outfit", sans-serif;
+  --color-teal: #069494;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -37,7 +38,7 @@
 
 @layer base {
   :root {
-    --background: 240 5% 92%;
+    --background: 240 5% 88%;
     --foreground: 240 10% 3.9%;
     --card: 0 0% 100%;
     --card-foreground: 240 10% 3.9%;
@@ -53,7 +54,7 @@
     --accent-foreground: 240 5.9% 10%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 5% 82%;
+    --border: 240 5% 78%;
     --input: 240 5% 82%;
     --ring: 240 5.9% 10%;
     --radius: 1rem;
@@ -81,7 +82,7 @@
     --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 5% 18%;
+    --border: 240 5% 20%;
     --input: 240 5% 22%;
     --ring: 240 4.9% 83.9%;
     --chart-1: 220 70% 50%;

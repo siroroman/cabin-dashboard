@@ -40,7 +40,7 @@ export default function Login() {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.3 }}
       >
-        <Card className="w-full max-w-md border-border/50 shadow-xl rounded-3xl overflow-hidden bg-card/50 backdrop-blur-xl">
+        <Card className="w-full max-w-md border-border shadow-xl rounded-3xl overflow-hidden bg-card/50 backdrop-blur-xl">
           <CardHeader className="space-y-1 text-center pt-8">
             <div className="mx-auto w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-primary-foreground mb-4 shadow-lg">
               <Home className="w-6 h-6" />
@@ -58,7 +58,7 @@ export default function Login() {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   required 
-                  className="rounded-xl bg-background/50 border-border/50 focus:ring-primary/20"
+                  className="rounded-xl bg-background/50 border-border focus:ring-primary/20"
                 />
               </div>
               <div className="space-y-2">
@@ -70,7 +70,7 @@ export default function Login() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required 
-                    className="rounded-xl bg-background/50 border-border/50 focus:ring-primary/20 pl-10"
+                    className="rounded-xl bg-background/50 border-border focus:ring-primary/20 pl-10"
                   />
                   <Lock className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 </div>

@@ -7,14 +7,14 @@ interface TemperatureCardProps {
 
 export function TemperatureCard({ data }: TemperatureCardProps) {
   const getBatteryIcon = (level: number) => {
-    if (level > 60) return <BatteryFull className="w-4 h-4 text-emerald-500" />;
-    if (level > 20) return <BatteryMedium className="w-4 h-4 text-amber-500" />;
+    if (level > 60) return <BatteryFull className="w-4 h-4 text-teal" />;
+    if (level > 20) return <BatteryMedium className="w-4 h-4 text-teal" />;
     return <BatteryLow className="w-4 h-4 text-rose-500" />;
   };
 
   const getTempColor = (temp: number) => {
-    if (temp < 15) return "text-blue-500";
-    if (temp > 25) return "text-orange-500";
+    if (temp < 15) return "text-teal";
+    if (temp > 25) return "text-teal";
     return "text-foreground";
   };
 
@@ -23,16 +23,16 @@ export function TemperatureCard({ data }: TemperatureCardProps) {
   const indoorBattery = data?.battery_percentage;
 
   return (
-    <Card className="h-full border-border/50 shadow-sm hover:shadow-md transition-shadow overflow-hidden rounded-2xl bg-card/50 backdrop-blur-sm">
+    <Card className="h-full border-border overflow-hidden rounded-2xl bg-card/50 backdrop-blur-sm">
       <CardHeader className="pb-2">
         <CardTitle className="text-lg flex items-center gap-2 font-medium">
-          <div className="p-2 rounded-lg bg-blue-500/10 text-blue-500">
+          <div className="p-2 rounded-lg bg-teal/10 text-teal">
             <Thermometer className="w-5 h-5" />
           </div>
           Environment
         </CardTitle>
       </CardHeader>
-      <CardContent className="grid grid-cols-2 gap-4 divide-x divide-border/50 h-[calc(100%-4rem)]">
+      <CardContent className="grid grid-cols-2 gap-4 divide-x divide-border h-[calc(100%-4rem)]">
         {/* Indoor */}
         <div className="space-y-4 pr-2 flex flex-col">
           <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Indoor</h3>
@@ -47,6 +47,7 @@ export function TemperatureCard({ data }: TemperatureCardProps) {
                   <span className="text-base text-muted-foreground mb-1">°C</span>
                 </div>
               </div>
+              <div className="w-px h-10 bg-border/50" />
               <div className="flex flex-col items-center">
                 <div className="flex items-end gap-1">
                   <span className="text-4xl font-light tabular-nums tracking-tight">
@@ -57,13 +58,13 @@ export function TemperatureCard({ data }: TemperatureCardProps) {
               </div>
             </div>
             
-            <div className="flex flex-col gap-2 pt-4 border-t border-border/30 mt-auto">
+            <div className="flex flex-col gap-2 pt-2">
               <div className="flex items-center justify-between text-sm">
                 <div className="flex items-center gap-1.5 text-muted-foreground">
                   {indoorBattery != null ? getBatteryIcon(indoorBattery) : <BatteryFull className="w-4 h-4 text-muted-foreground" />}
                   <span>Sensor Battery</span>
                 </div>
-                <span className={`font-medium ${indoorBattery != null ? "text-emerald-500" : ""}`}>
+                <span className={`font-medium ${indoorBattery != null ? "text-teal" : ""}`}>
                   {indoorBattery != null ? `${indoorBattery}%` : "--"}
                 </span>
               </div>

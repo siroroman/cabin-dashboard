@@ -7,19 +7,11 @@ interface SolarCardProps {
   data?: any;
 }
 
-function CircularProgress({ percentage, size = 120, strokeWidth = 8 }: { percentage: number; size?: number; strokeWidth?: number }) {
+function CircularProgress({ percentage, power, size = 120, strokeWidth = 8 }: { percentage: number; power?: number; size?: number; strokeWidth?: number }) {
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (percentage / 100) * circumference;
   const center = size / 2;
-
-  const getColor = (pct: number) => {
-    if (pct < 20) return { stroke: "#ef4444" };
-    if (pct < 50) return { stroke: "#f59e0b" };
-    return { stroke: "#22c55e" };
-  };
-
-  const colors = getColor(percentage);
 
   return (
     <div className="relative" style={{ width: size, height: size }}>
@@ -38,7 +30,7 @@ function CircularProgress({ percentage, size = 120, strokeWidth = 8 }: { percent
           cy={center}
           r={radius}
           fill="none"
-          stroke={colors.stroke}
+          stroke="#069494"
           strokeWidth={strokeWidth}
           strokeDasharray={circumference}
           strokeDashoffset={offset}
@@ -47,7 +39,7 @@ function CircularProgress({ percentage, size = 120, strokeWidth = 8 }: { percent
         />
       </svg>
       <div className="absolute inset-0 flex items-center justify-center">
-        <span className="text-2xl font-semibold tabular-nums">{Math.round(percentage)}<span className="text-sm text-muted-foreground">%</span></span>
+        <span className="text-xl font-semibold tabular-nums">{power ?? "--"}<span className="text-xs text-muted-foreground ml-0.5">W</span></span>
       </div>
     </div>
   );
@@ -62,18 +54,18 @@ export function SolarCard({ data }: SolarCardProps) {
   const getModeColor = (mode: string) => {
     switch (mode) {
       case "BULK": return "text-amber-500 bg-amber-500/10 border-amber-500/20";
-      case "ABSORPTION": return "text-blue-500 bg-blue-500/10 border-blue-500/20";
-      case "FLOAT": return "text-emerald-500 bg-emerald-500/10 border-emerald-500/20";
-      default: return "text-muted-foreground bg-muted/50 border-border/50";
+      case "ABSORPTION": return "text-teal bg-teal/10 border-teal/20";
+      case "FLOAT": return "text-teal bg-teal/10 border-teal/20";
+      default: return "text-muted-foreground bg-muted/50 border-border";
     }
   };
 
   return (
-    <Card className="h-full border-border/50 shadow-sm hover:shadow-md transition-shadow overflow-hidden rounded-2xl bg-card/50 backdrop-blur-sm flex flex-col relative">
+    <Card className="h-full border-border overflow-hidden rounded-2xl bg-card/50 backdrop-blur-sm flex flex-col relative">
       <CardHeader className="pb-2 flex-shrink-0">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg flex items-center gap-2 font-medium">
-            <div className="p-2 rounded-lg bg-amber-500/10 text-amber-500">
+            <div className="p-2 rounded-lg bg-teal/10 text-teal">
               <Sun className="w-5 h-5" />
             </div>
             Solar MPPT
@@ -86,13 +78,8 @@ export function SolarCard({ data }: SolarCardProps) {
       <CardContent className="pt-4 flex flex-col flex-1">
         <div className="flex items-center justify-around flex-1">
           <div className="flex flex-col items-center gap-2">
-            <CircularProgress percentage={solarPower != null ? percentage : 0} />
-            <div className="text-center">
-              <div className="text-2xl font-light tabular-nums tracking-tight text-amber-500">
-                {solarPower != null ? solarPower : "--"} <span className="text-base text-amber-500/70 font-normal">W</span>
-              </div>
-              <span className="text-xs text-muted-foreground">of {MAX_OUTPUT}W max</span>
-            </div>
+            <CircularProgress percentage={solarPower != null ? percentage : 0} power={solarPower} size={140} strokeWidth={12} />
+            <span className="text-xs text-muted-foreground">of {MAX_OUTPUT}W max</span>
           </div>
 
           <div className="flex flex-col gap-4 text-right">
@@ -104,8 +91,8 @@ export function SolarCard({ data }: SolarCardProps) {
             </div>
             <div>
               <span className="text-xs text-muted-foreground">Battery Voltage</span>
-              <div className="text-xl font-medium tabular-nums tracking-tight text-emerald-500">
-                {data?.battery_voltage?.toFixed(1) ?? "--"} <span className="text-sm text-emerald-500/70 font-normal">V</span>
+              <div className="text-xl font-medium tabular-nums tracking-tight">
+                {data?.battery_voltage?.toFixed(1) ?? "--"} <span className="text-sm text-muted-foreground font-normal">V</span>
               </div>
             </div>
             <div>
