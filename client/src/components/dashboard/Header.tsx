@@ -1,4 +1,5 @@
-import { Wifi, LogOut, Home, Moon, Sun } from "lucide-react";
+import { useRef, useEffect, useState } from "react";
+import { LogOut, Home, Moon, Sun, Palette } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -15,16 +16,30 @@ import { useTheme } from "@/components/ThemeProvider";
 import { cabinApi } from "@/lib/api";
 import { useLocation } from "wouter";
 
+const DEFAULT_TINT = "#069494";
+const STORAGE_KEY = "dashboard-tint";
+
 export function Header() {
   const { theme, setTheme } = useTheme();
   const [, setLocation] = useLocation();
+  const colorInputRef = useRef<HTMLInputElement>(null);
+  const [tint, setTint] = useState(() => localStorage.getItem(STORAGE_KEY) ?? DEFAULT_TINT);
+
+  useEffect(() => {
+    document.documentElement.style.setProperty("--tint", tint);
+  }, [tint]);
+
+  const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const color = e.target.value;
+    setTint(color);
+    localStorage.setItem(STORAGE_KEY, color);
+  };
 
   const handleLogout = async () => {
     try {
       await cabinApi.logout();
       setLocation("/login");
     } catch (error) {
-      // Even if API fails, clear local and redirect
       localStorage.removeItem("access_token");
       setLocation("/login");
     }
@@ -40,9 +55,26 @@ export function Header() {
       </div>
 
       <div className="flex items-center gap-2 md:gap-4">
-        <Button 
-          variant="ghost" 
-          size="icon" 
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => colorInputRef.current?.click()}
+          className="rounded-full relative"
+          title="Change accent color"
+        >
+          <Palette className="w-5 h-5" />
+          <input
+            ref={colorInputRef}
+            type="color"
+            value={tint}
+            onChange={handleColorChange}
+            className="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
+          />
+        </Button>
+
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
           className="rounded-full"
         >
@@ -51,8 +83,8 @@ export function Header() {
 
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               className="text-teal bg-teal/10 hover:text-teal hover:bg-teal/10 rounded-full sm:rounded-md px-2 sm:px-4 transition-colors"
             >
               <LogOut className="w-5 h-5 sm:mr-2" />
@@ -68,7 +100,7 @@ export function Header() {
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel className="rounded-xl">Cancel</AlertDialogCancel>
-              <AlertDialogAction 
+              <AlertDialogAction
                 className="rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90"
                 onClick={handleLogout}
               >

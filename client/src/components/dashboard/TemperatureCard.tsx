@@ -59,11 +59,8 @@ export function TemperatureCard({ data }: TemperatureCardProps) {
             </div>
             
             <div className="flex flex-col gap-2 pt-2">
-              <div className="flex items-center justify-between text-sm">
-                <div className="flex items-center gap-1.5 text-muted-foreground">
-                  {indoorBattery != null ? getBatteryIcon(indoorBattery) : <BatteryFull className="w-4 h-4 text-muted-foreground" />}
-                  <span>Sensor Battery</span>
-                </div>
+              <div className="flex items-center justify-center gap-1.5 text-sm">
+                {indoorBattery != null ? getBatteryIcon(indoorBattery) : <BatteryFull className="w-4 h-4 text-muted-foreground" />}
                 <span className={`font-medium ${indoorBattery != null ? "text-teal" : ""}`}>
                   {indoorBattery != null ? `${indoorBattery}%` : "--"}
                 </span>

@@ -30,7 +30,7 @@ function CircularProgress({ percentage, power, size = 120, strokeWidth = 8 }: { 
           cy={center}
           r={radius}
           fill="none"
-          stroke="#069494"
+          stroke="var(--tint)"
           strokeWidth={strokeWidth}
           strokeDasharray={circumference}
           strokeDashoffset={offset}
