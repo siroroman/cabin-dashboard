@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { LogOut, Home, Moon, Sun, Palette } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,13 +16,12 @@ import { useTheme } from "@/components/ThemeProvider";
 import { cabinApi } from "@/lib/api";
 import { useLocation } from "wouter";
 
-const DEFAULT_TINT = "#069494";
+const DEFAULT_TINT = "#359d73";
 const STORAGE_KEY = "dashboard-tint";
 
 export function Header() {
   const { theme, setTheme } = useTheme();
   const [, setLocation] = useLocation();
-  const colorInputRef = useRef<HTMLInputElement>(null);
   const [tint, setTint] = useState(() => localStorage.getItem(STORAGE_KEY) ?? DEFAULT_TINT);
 
   useEffect(() => {
@@ -58,18 +57,19 @@ export function Header() {
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => colorInputRef.current?.click()}
           className="rounded-full relative"
           title="Change accent color"
+          asChild
         >
-          <Palette className="w-5 h-5" />
-          <input
-            ref={colorInputRef}
-            type="color"
-            value={tint}
-            onChange={handleColorChange}
-            className="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
-          />
+          <label>
+            <Palette className="w-5 h-5" />
+            <input
+              type="color"
+              value={tint}
+              onChange={handleColorChange}
+              className="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
+            />
+          </label>
         </Button>
 
         <Button
