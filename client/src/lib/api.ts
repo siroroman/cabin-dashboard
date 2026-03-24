@@ -47,4 +47,5 @@ export const cabinApi = {
   adjustHeaterPower: (action: "up" | "down") => request("POST", `/heater/power-level?action=${action}`),
   getMpptStatus: () => request("GET", "/mppt/status"),
   getTemperatureStatus: () => request("GET", "/temperature/status"),
+  getOutdoorTemperatureStatus: () => request("GET", "/temperature/outdoor"),
 };

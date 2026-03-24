@@ -116,7 +116,7 @@ export function SolarCard({ data, lastFetch }: SolarCardProps) {
         </div>
       </CardContent>
       {fmtFetchTime(lastFetch) && (
-        <div className="pb-2 text-center text-[10px] text-muted-foreground/50 tabular-nums">
+        <div className="pb-2 text-center text-[10px] text-foreground/70 tabular-nums">
           {fmtFetchTime(lastFetch)}
         </div>
       )}

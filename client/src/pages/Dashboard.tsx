@@ -29,6 +29,12 @@ export default function Dashboard() {
     refetchInterval: 10000,
   });
 
+  const { data: outdoorTempData, dataUpdatedAt: outdoorTempUpdatedAt } = useQuery({
+    queryKey: ["/temperature/outdoor"],
+    queryFn: cabinApi.getOutdoorTemperatureStatus,
+    refetchInterval: 10000,
+  });
+
   const { data: heaterData, dataUpdatedAt: heaterUpdatedAt } = useQuery({
     queryKey: ["/heater/status"],
     queryFn: cabinApi.getHeaterStatus,
@@ -59,7 +65,7 @@ export default function Dashboard() {
           transition={{ duration: 0.5, staggerChildren: 0.1 }}
         >
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="h-full">
-            <TemperatureCard data={tempData} lastFetch={tempUpdatedAt} />
+            <TemperatureCard data={tempData} lastFetch={tempUpdatedAt} outdoorData={outdoorTempData} outdoorLastFetch={outdoorTempUpdatedAt} />
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="h-full">
             <HeaterCard data={heaterData} lastFetch={heaterUpdatedAt} onActionStart={pauseHeaterPolling} onActionEnd={resumeHeaterPolling} />

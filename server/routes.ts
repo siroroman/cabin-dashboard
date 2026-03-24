@@ -187,5 +187,15 @@ export async function registerRoutes(
     }
   });
 
+  app.get("/api/temperature/outdoor", async (req, res) => {
+    try {
+      const token = req.headers.authorization?.replace("Bearer ", "");
+      const result = await proxyRequest("GET", "/temperature/outdoor", token);
+      res.status(result.status).json(result.data);
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
   return httpServer;
 }
