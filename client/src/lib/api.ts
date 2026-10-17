@@ -1,5 +1,16 @@
 const API_BASE = "/api";
 
+let redirectingToLogin = false;
+
+// The upstream session token expires; once it does every request returns 401 and
+// the dashboard would sit empty forever. Drop the dead token and go back to login.
+function handleSessionExpired() {
+  localStorage.removeItem("access_token");
+  if (redirectingToLogin || window.location.pathname === "/login") return;
+  redirectingToLogin = true;
+  window.location.replace("/login");
+}
+
 async function request(method: string, path: string, body?: any, contentType?: string) {
   const token = localStorage.getItem("access_token");
   const headers: Record<string, string> = {};
@@ -14,6 +25,10 @@ async function request(method: string, path: string, body?: any, contentType?: s
   });
 
   const data = await res.json().catch(() => null);
+
+  if (res.status === 401 && path !== "/token") {
+    handleSessionExpired();
+  }
 
   if (!res.ok) {
     const err: any = new Error(data?.detail || data?.error || "Request failed");
